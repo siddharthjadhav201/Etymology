@@ -1,10 +1,12 @@
-import "dart:developer";
 
 import "package:etymology/navbar.dart";
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "providers.dart";
 import 'package:google_fonts/google_fonts.dart';
+import 'highlight_spanbuilder.dart';
+import 'package:extended_text_field/extended_text_field.dart';
+
 
 class NotesEditor extends StatefulWidget {
   @override
@@ -12,7 +14,7 @@ class NotesEditor extends StatefulWidget {
 }
 
 class _NotesEditorState extends State<NotesEditor> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController controller = TextEditingController();
   // int _charCount = 0;
 
   // @override
@@ -25,8 +27,25 @@ class _NotesEditorState extends State<NotesEditor> {
   //   });
   // }
  
+ void _highlightSelection() {
+    final text = controller.text;
+    final selection = controller.selection;
+    if (!selection.isValid || selection.isCollapsed) return;
+
+    final selectedWord = text.substring(selection.start, selection.end).trim();
+    if (selectedWord.isEmpty) return;
+
+    final success = context.read<HighlightProvider>().toggleHighlight(selectedWord);
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("You can highlight up to 10 words only.")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+     final highlightProvider = Provider.of<HighlightProvider>(context);
     return Scaffold(
         body: Column(
       children: [
@@ -106,7 +125,7 @@ class _NotesEditorState extends State<NotesEditor> {
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {_highlightSelection();},
                     child: Container(
                         height: 48,
                         width: 180,
@@ -173,44 +192,19 @@ class _NotesEditorState extends State<NotesEditor> {
                 height: 380,
                 width: 1160,
                 decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                   width: 1,
                   color: Color.fromARGB(255, 166, 166, 166),
                 )),
                 alignment: Alignment.topLeft,
-                child: Stack(children: [
-                  TextField(
-                    onChanged: (str){ 
-                      context.read<MainProvider>().changeLength(_controller.text.length);
-                    },
-                    controller: _controller,
-                    textAlignVertical: TextAlignVertical.top,
-                    maxLines: null,
-                   maxLength: 5000,
-                    expands: true,
-                    decoration: InputDecoration(
-                      hintText: 'Type or paste your notes here...',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      // filled: true,
-                      // fillColor: Color.fromARGB(255, 245, 245, 245),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 8,
-                    right: 12,
-                    child: Text(
-                      // "0 characters",
-                      // '$_charCount characters',
-                      "${context.watch<MainProvider>().strLength} characters",
-                      // "${MainProvider().strLength} characters",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                ]),
+                child: ExtendedTextField(
+            controller: controller,
+            expands: true,
+            maxLines: null,
+            specialTextSpanBuilder: HighlightSpanBuilder(highlightProvider),
+            decoration: InputDecoration.collapsed(hintText: "Type and select words to highlight"),
+          ),
               ),
               
               const SizedBox(height: 28,),
@@ -255,7 +249,12 @@ class _NotesEditorState extends State<NotesEditor> {
                       ],
                     ),
                   ),
-                  
+                const SizedBox(height: 20,),
+                 Wrap(
+          children: highlightProvider.highlightedWords
+              .map((word) => Chip(label: Text(word)))
+              .toList(),
+        ),  
             ],
           ),
         ),

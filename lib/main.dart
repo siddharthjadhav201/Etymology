@@ -1,11 +1,11 @@
 import 'package:etymology/providers.dart';
 import 'package:flutter/material.dart';
 import "package:provider/provider.dart";
-import "secondPage.dart";
+
 import 'try.dart';
 void main() {
   runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (_) => MainProvider()),
+    ChangeNotifierProvider(create: (_) => HighlightProvider()),
   ],
     child: MainApp(),
 
