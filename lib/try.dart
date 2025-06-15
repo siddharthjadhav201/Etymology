@@ -1,4 +1,6 @@
 
+import "dart:developer";
+
 import "package:etymology/navbar.dart";
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
@@ -26,28 +28,44 @@ class _NotesEditorState extends State<NotesEditor> {
   //     });
   //   });
   // }
+  bool isAlphanumeric(String char) {
+  return RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
+}
+bool isSymbol(String char) {
+  return !RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
+}
  
  void _highlightSelection() {
     final text = controller.text;
     final selection = controller.selection;
     if (!selection.isValid || selection.isCollapsed) return;
+    int start=0;
+    int end=0;
+      start=text[selection.start]==" " || isSymbol(text[selection.start]) ? selection.start+1:selection.start;
+      end=text[selection.end]==" " || isSymbol(text[selection.end]) ? selection.end-1:end=selection.end-2;
 
-    final selectedWord = text.substring(selection.start, selection.end).trim();
-    if (selectedWord.isEmpty) return;
+      if(isAlphanumeric(text[start-1]) || isAlphanumeric(text[end+1])){
+        return;
+      }else{
 
-    final success = context.read<HighlightProvider>().toggleHighlight(selectedWord);
+
+        final selectedWord = text.substring(selection.start, selection.end).trim();
+    if (selectedWord.isEmpty || selectedWord.contains(" ")) return;
+
+    final success = context.read<HighlightProvider>().toggleHighlight(selectedWord,start,end);
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("You can highlight up to 10 words only.")),
       );
     }
+      }
   }
 
   @override
   Widget build(BuildContext context) {
      final highlightProvider = Provider.of<HighlightProvider>(context);
     return Scaffold(
-        body: Column(
+        body: ListView(
       children: [
         CustomNavbar(),
         Padding(
@@ -198,13 +216,19 @@ class _NotesEditorState extends State<NotesEditor> {
                   color: Color.fromARGB(255, 166, 166, 166),
                 )),
                 alignment: Alignment.topLeft,
-                child: ExtendedTextField(
-            controller: controller,
-            expands: true,
-            maxLines: null,
-            specialTextSpanBuilder: HighlightSpanBuilder(highlightProvider),
-            decoration: InputDecoration.collapsed(hintText: "Type and select words to highlight"),
-          ),
+
+                child: TextSelectionTheme(
+                  data: TextSelectionThemeData(
+                    selectionColor: Colors.blue,
+                  ),
+                  child: ExtendedTextField(
+                              controller: controller,
+                              expands: true,
+                              maxLines: null,
+                              specialTextSpanBuilder: HighlightSpanBuilder(highlightProvider),
+                              decoration: InputDecoration.collapsed(hintText: "Type and select words to highlight"),
+                            ),
+                ),
               ),
               
               const SizedBox(height: 28,),
@@ -251,7 +275,7 @@ class _NotesEditorState extends State<NotesEditor> {
                   ),
                 const SizedBox(height: 20,),
                  Wrap(
-          children: highlightProvider.highlightedWords
+          children: highlightProvider.highlightedWords.keys
               .map((word) => Chip(label: Text(word)))
               .toList(),
         ),  

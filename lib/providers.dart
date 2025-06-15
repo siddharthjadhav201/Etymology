@@ -1,17 +1,19 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 class HighlightProvider with ChangeNotifier {
-  final List<String> _highlightedWords = [];
+  final Map _highlightedWords = {};
+  Map get highlightedWords => _highlightedWords;
 
-  List<String> get highlightedWords => _highlightedWords;
-
-  bool toggleHighlight(String word) {
-    if (_highlightedWords.contains(word)) {
+  bool toggleHighlight(String word,int start,int end) {
+    if (_highlightedWords.containsKey(word)) {
       _highlightedWords.remove(word);
+      log("$_highlightedWords");
       notifyListeners();
       return true;
     } else if (_highlightedWords.length < 10) {
-      _highlightedWords.add(word);
+      _highlightedWords.addAll({word:[start,end]});
       notifyListeners();
       return true;
     } else {
@@ -20,7 +22,7 @@ class HighlightProvider with ChangeNotifier {
   }
 
   bool isHighlighted(String word) {
-    return _highlightedWords.contains(word);
+    return _highlightedWords.containsKey(word);
   }
 
   void clear() {
