@@ -6,6 +6,12 @@ class HighlightProvider with ChangeNotifier {
   final Map _highlightedWords = {};
   Map get highlightedWords => _highlightedWords;
 
+   void clearAll(){
+    _highlightedWords.clear();
+    notifyListeners();
+   }
+
+  
   bool toggleHighlight(String word,int start,int end) {
     if (_highlightedWords.containsKey(word)) {
       _highlightedWords.remove(word);

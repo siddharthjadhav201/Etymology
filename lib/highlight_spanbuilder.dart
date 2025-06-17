@@ -29,7 +29,7 @@ TextSpan build(String data, {TextStyle? textStyle, onTap}) {
     children.add(TextSpan(
       text: data.substring(wordLocation[0],wordLocation[1]+1),
       style: textStyle?.copyWith(
-        backgroundColor: Colors.yellow.withOpacity(0.7) ,
+        backgroundColor: Colors.yellow.withAlpha(128) ,
         
       ),
     ));

@@ -17,6 +17,7 @@ class NotesEditor extends StatefulWidget {
 
 class _NotesEditorState extends State<NotesEditor> {
   final TextEditingController controller = TextEditingController();
+  bool _limitPopupShown = false;
   // int _charCount = 0;
 
   // @override
@@ -28,11 +29,43 @@ class _NotesEditorState extends State<NotesEditor> {
   //     });
   //   });
   // }
+
+  @override
+void initState() {
+  super.initState();
+
+  controller.addListener(() {
+    if (controller.text.length >= 5000 && !_limitPopupShown) {
+      _limitPopupShown = true;
+      showCenterPopup(context, "You have reached the character limit.");
+    }
+
+    if (controller.text.length < 5000) {
+      _limitPopupShown = false; 
+    }
+  });
+}
   bool isAlphanumeric(String char) {
   return RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
 }
 bool isSymbol(String char) {
   return !RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
+}
+
+   void showCenterPopup(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      content: Text(message),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text("OK"),
+        ),
+      ],
+    ),
+  );
 }
  
  void _highlightSelection() {
@@ -54,9 +87,7 @@ bool isSymbol(String char) {
 
     final success = context.read<HighlightProvider>().toggleHighlight(selectedWord,start,end);
     if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You can highlight up to 10 words only.")),
-      );
+      showCenterPopup(context, "⚠️ You can only highlight up to 10 words.");
     }
       }
   }
@@ -178,7 +209,9 @@ bool isSymbol(String char) {
                   
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      context.read<HighlightProvider>().clearAll();
+                    },
                     child: Container(
                       height: 48,
                       width: 144,
@@ -225,6 +258,15 @@ bool isSymbol(String char) {
                               controller: controller,
                               expands: true,
                               maxLines: null,
+                              maxLength: 5000,
+                              
+                              // onTap: () {
+                              //   if(context.read<HighlightProvider>().highlightedWords.isNotEmpty){
+                              //       showCenterPopup(context, "Unable to Edit, clear all highlighted words");
+                              //   }
+                              // },
+                              // readOnly: context.read<HighlightProvider>().highlightedWords.isEmpty ? false : true,
+                              // maxLengthEnforcement: MaxLengthEnforcement.none,
                               specialTextSpanBuilder: HighlightSpanBuilder(highlightProvider),
                               decoration: InputDecoration.collapsed(hintText: "Type and select words to highlight"),
                             ),
@@ -282,7 +324,7 @@ bool isSymbol(String char) {
             ],
           ),
         ),
-      ],
+      ], 
     ));
   }
 }
