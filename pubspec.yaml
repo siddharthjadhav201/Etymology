@@ -15,6 +15,7 @@ dependencies:
   path_provider_linux: ^2.1.0
   path_provider_windows: ^2.1.0
   extended_text_field: ^16.0.2
+  http: ^1.4.0
 
 dev_dependencies:
   flutter_test:

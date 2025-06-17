@@ -3,23 +3,30 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 class HighlightProvider with ChangeNotifier {
-  final Map _highlightedWords = {};
-  Map get highlightedWords => _highlightedWords;
+  final List highlightedWordLocations= [];
+  // Map get highlightedWords => _highlightedWords;
+  List highlightedWords=[];
+  int prevTextLength=0;
 
-   void clearAll(){
-    _highlightedWords.clear();
-    notifyListeners();
-   }
+  void setPrevTextLength(int newLength){
+    prevTextLength=newLength;
+    ChangeNotifier();
+  }
 
   
   bool toggleHighlight(String word,int start,int end) {
-    if (_highlightedWords.containsKey(word)) {
-      _highlightedWords.remove(word);
-      log("$_highlightedWords");
+    if (highlightedWords.contains(word)) {
+      highlightedWordLocations.removeAt(highlightedWords.indexOf(word));
+      highlightedWords.remove(word);
+      log("$highlightedWords");
+      log("$highlightedWordLocations");
       notifyListeners();
       return true;
-    } else if (_highlightedWords.length < 10) {
-      _highlightedWords.addAll({word:[start,end]});
+    } else if (highlightedWords.length < 10) {
+      highlightedWords.add(word);
+      highlightedWordLocations.add([start,end]);
+      log("$highlightedWords");
+      log("$highlightedWordLocations");
       notifyListeners();
       return true;
     } else {
@@ -28,11 +35,12 @@ class HighlightProvider with ChangeNotifier {
   }
 
   bool isHighlighted(String word) {
-    return _highlightedWords.containsKey(word);
+    return highlightedWords.contains(word);
   }
 
   void clear() {
-    _highlightedWords.clear();
+    highlightedWords.clear();
+    highlightedWordLocations.clear();
     notifyListeners();
   }
 }
