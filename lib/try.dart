@@ -1,14 +1,14 @@
-
 import "dart:developer";
 
 import "package:etymology/navbar.dart";
+import "package:etymology/services/remote_services.dart";
 import "package:flutter/material.dart";
+// import "package:http/http.dart";
 import "package:provider/provider.dart";
 import "providers.dart";
 import 'package:google_fonts/google_fonts.dart';
 import 'highlight_spanbuilder.dart';
 import 'package:extended_text_field/extended_text_field.dart';
-
 
 class NotesEditor extends StatefulWidget {
   @override
@@ -17,6 +17,8 @@ class NotesEditor extends StatefulWidget {
 
 class _NotesEditorState extends State<NotesEditor> {
   final TextEditingController controller = TextEditingController();
+  final UndoHistoryController undoController= UndoHistoryController();
+  TextSelection? previousSelection;
   // int _charCount = 0;
 
   // @override
@@ -29,41 +31,84 @@ class _NotesEditorState extends State<NotesEditor> {
   //   });
   // }
   bool isAlphanumeric(String char) {
-  return RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
-}
-bool isSymbol(String char) {
-  return !RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
-}
- 
- void _highlightSelection() {
+    return RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
+  }
+
+  bool isSymbol(String char) {
+    return !RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
+  }
+
+  void _highlightSelection() {
+    log("${controller.selection.start}  ,  ${controller.selection.end}");
     final text = controller.text;
     final selection = controller.selection;
     if (!selection.isValid || selection.isCollapsed) return;
-    int start=0;
-    int end=0;
-      start=text[selection.start]==" " || isSymbol(text[selection.start]) ? selection.start+1:selection.start;
-      end=text[selection.end]==" " || isSymbol(text[selection.end]) ? selection.end-1:end=selection.end-2;
+    int start = 0;
+    int end = 0;
+    start = text[selection.start] == " " || isSymbol(text[selection.start])
+        ? selection.start + 1
+        : selection.start;
+    end = text[selection.end] == " " || isSymbol(text[selection.end])
+        ? selection.end - 1
+        : end = selection.end - 2;
 
-      if(isAlphanumeric(text[start-1]) || isAlphanumeric(text[end+1])){
-        return;
-      }else{
+    if (start == 0
+        ? false
+        : isAlphanumeric(text[start - 1]) || end == text.length
+            ? false
+            : isAlphanumeric(text[end + 1])) {
+      return;
+    } else {
+      final selectedWord =
+          text.substring(selection.start, selection.end).trim();
+      if (selectedWord.isEmpty || selectedWord.contains(" ")) return;
 
-
-        final selectedWord = text.substring(selection.start, selection.end).trim();
-    if (selectedWord.isEmpty || selectedWord.contains(" ")) return;
-
-    final success = context.read<HighlightProvider>().toggleHighlight(selectedWord,start,end);
-    if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You can highlight up to 10 words only.")),
-      );
-    }
+      final success = context
+          .read<HighlightProvider>()
+          .toggleHighlight(selectedWord, start, end);
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("You can highlight up to 10 words only.")),
+        );
       }
+    }
+  }
+
+  void updateLocations() {
+    HighlightProvider highlightProvider = context.read<HighlightProvider>();
+    List highlightedWordsLocations = highlightProvider.highlightedWordLocations.map((element){return element;}).toList();
+    int diff = controller.text.length - highlightProvider.prevTextLength;
+
+      for (List highlightedWordsLocation in highlightedWordsLocations){
+       if( highlightedWordsLocation[0] > previousSelection!.start){
+        highlightedWordsLocation[0]=highlightedWordsLocation[0]+diff;
+        highlightedWordsLocation[1]=highlightedWordsLocation[1]+diff;
+       }
+         
+      }
+    
+
+    highlightProvider.setPrevTextLength(controller.text.length);
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    controller.addListener(() {
+      final currentSelection = controller.selection;
+      if (previousSelection != currentSelection && currentSelection.isValid) {
+        print("Previous Selection: $previousSelection");
+        print("Current Selection: $currentSelection");
+        previousSelection = currentSelection;
+      }
+    });
+
   }
 
   @override
   Widget build(BuildContext context) {
-     final highlightProvider = Provider.of<HighlightProvider>(context);
+    final highlightProvider = Provider.of<HighlightProvider>(context);
     return Scaffold(
         body: ListView(
       children: [
@@ -143,7 +188,9 @@ bool isSymbol(String char) {
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
-                    onTap: () {_highlightSelection();},
+                    onTap: () {
+                      _highlightSelection();
+                    },
                     child: Container(
                         height: 48,
                         width: 180,
@@ -175,10 +222,10 @@ bool isSymbol(String char) {
                           ],
                         )),
                   ),
-                  
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      highlightProvider.clear();},
                     child: Container(
                       height: 48,
                       width: 144,
@@ -210,75 +257,83 @@ bool isSymbol(String char) {
                 height: 380,
                 width: 1160,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                  width: 1,
-                  color: Color.fromARGB(255, 166, 166, 166),
-                )),
+                      width: 1,
+                      color: Color.fromARGB(255, 166, 166, 166),
+                    )),
                 alignment: Alignment.topLeft,
-
                 child: TextSelectionTheme(
                   data: TextSelectionThemeData(
                     selectionColor: Colors.blue,
                   ),
                   child: ExtendedTextField(
-                              controller: controller,
-                              expands: true,
-                              maxLines: null,
-                              specialTextSpanBuilder: HighlightSpanBuilder(highlightProvider),
-                              decoration: InputDecoration.collapsed(hintText: "Type and select words to highlight"),
-                            ),
+                    onChanged: (string) {
+                      updateLocations();
+                    },
+                    undoController: undoController,
+                    controller: controller,
+                    expands: true,
+                    maxLines: null,
+                    specialTextSpanBuilder:
+                        HighlightSpanBuilder(highlightProvider),
+                    decoration: InputDecoration.collapsed(
+                        hintText: "Type and select words to highlight"),
+                  ),
                 ),
               ),
-              
-              const SizedBox(height: 28,),
+              const SizedBox(
+                height: 28,
+              ),
               GestureDetector(
-                    onTap: () {
-
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                            height: 48,
-                            width: 180,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(255,54,59,186),
-                                borderRadius: BorderRadius.circular(8),
-                                // color: Color.fromARGB(1, 255, 255, 255),
-                                border: Border.all(
-                                  width: 1,
-                                  color: Color.fromARGB(255, 166, 166, 166),
-                                )),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Image.asset(
-                                //   "assets/magicpen.png",
-                                //   height: 30,
-                                //   width: 30,
-                                // ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text('Annotate',
-                                    style: GoogleFonts.poppins(
-                                        letterSpacing: 0.08,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white)),
-                              ],
+                onTap: () {
+                  getWordInfo();
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                        height: 48,
+                        width: 180,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 54, 59, 186),
+                            borderRadius: BorderRadius.circular(8),
+                            // color: Color.fromARGB(1, 255, 255, 255),
+                            border: Border.all(
+                              width: 1,
+                              color: Color.fromARGB(255, 166, 166, 166),
                             )),
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 20,),
-                 Wrap(
-          children: highlightProvider.highlightedWords.keys
-              .map((word) => Chip(label: Text(word)))
-              .toList(),
-        ),  
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Image.asset(
+                            //   "assets/magicpen.png",
+                            //   height: 30,
+                            //   width: 30,
+                            // ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text('Annotate',
+                                style: GoogleFonts.poppins(
+                                    letterSpacing: 0.08,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white)),
+                          ],
+                        )),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Wrap(
+                children: highlightProvider.highlightedWords
+                    .map((word) => Chip(label: Text(word)))
+                    .toList(),
+              ),
             ],
           ),
         ),
