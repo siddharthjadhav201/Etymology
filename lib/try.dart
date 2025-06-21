@@ -320,7 +320,7 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
               ),
               GestureDetector(
                 onTap: () {
-                  getWordInfo();
+                  getWordInfo(context);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -359,14 +359,61 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                   ],
                 ),
               ),
+
+              //annotate box
+              highlightProvider.highlightWordsData.isEmpty?
+              const Text(""):
+
+              Column(
+                children: [
+                  const SizedBox(height: 28,),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    height: 380,
+                    width: 1160,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          width: 1,
+                          color: Color.fromARGB(255, 166, 166, 166),
+                        )),
+                    alignment: Alignment.topLeft,
+                    child: TextSelectionTheme(
+                      data: TextSelectionThemeData(
+                        selectionColor: Colors.blue,
+                      ),
+                      child: ListView.builder(
+                        itemCount: highlightProvider.highlightWordsData.length,
+                        itemBuilder:
+                      (context,index){
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("name : ${highlightProvider.highlightWordsData[index]["name"]}",
+                          style: TextStyle(fontWeight: FontWeight.w900),),
+                            Text(highlightProvider.highlightWordsData[index]["description"]),
+                            const SizedBox(height: 20,),
+                          ],
+                        );
+                      }
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+
+
               const SizedBox(
                 height: 20,
               ),
-              Wrap(
-                children: highlightProvider.highlightedWords
-                    .map((word) => Chip(label: Text(word)))
-                    .toList(),
-              ),
+
+
+              // Wrap(
+              //   children: highlightProvider.highlightedWords
+              //       .map((word) => Chip(label: Text(word)))
+              //       .toList(),
+              // ),
               const SizedBox(height: 30),
               GestureDetector(
   onTap: () {

@@ -9,6 +9,7 @@ class HighlightProvider with ChangeNotifier {
   List highlightedWords=[];
   int prevTextLength=0;
   Set<String> get grammaticalWords => _grammaticalWords;
+  List highlightWordsData=[];
 
   void setPrevTextLength(int newLength){
     prevTextLength=newLength;
@@ -56,6 +57,12 @@ class HighlightProvider with ChangeNotifier {
   void clear() {
     highlightedWords.clear();
     highlightedWordLocations.clear();
+    highlightWordsData.clear();
+    notifyListeners();
+  }
+
+   void setHighlightWordsData(List newHighlightWordsData){
+    highlightWordsData=newHighlightWordsData;
     notifyListeners();
   }
 }
