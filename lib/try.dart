@@ -1,5 +1,6 @@
 import "dart:developer";
 
+import "package:etymology/grammaticalwordpage.dart";
 import "package:etymology/navbar.dart";
 import "package:etymology/services/remote_services.dart";
 import "package:flutter/material.dart";
@@ -103,6 +104,11 @@ void showCenterPopup(BuildContext context, String message) {
       final selectedWord =
           text.substring(selection.start, selection.end).trim();
       if (selectedWord.isEmpty || selectedWord.contains(" ")) return;
+
+if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
+  showCenterPopup(context, "⚠️ '$selectedWord' is a grammatical word and cannot be highlighted.");
+  return;
+}
 
       final success = context
           .read<HighlightProvider>()
@@ -361,6 +367,29 @@ void showCenterPopup(BuildContext context, String message) {
                     .map((word) => Chip(label: Text(word)))
                     .toList(),
               ),
+              const SizedBox(height: 30),
+              GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GrammarWordsPage()),
+    );
+  },
+  child: Container(
+    margin: const EdgeInsets.only(top: 20),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    decoration: BoxDecoration(
+      color: Colors.green,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Text(
+      'Show Highlighted Words',
+      style: TextStyle(color: Colors.white, fontSize: 18),
+    ),
+  ),
+),
+ 
+
             ],
           ),
         ),

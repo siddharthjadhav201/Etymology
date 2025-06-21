@@ -4,15 +4,26 @@ import 'package:flutter/material.dart';
 
 class HighlightProvider with ChangeNotifier {
   final List highlightedWordLocations= [];
+  final Set<String> _grammaticalWords = {"is", "are", "the", "of", "to", "in", "on", "and"};
   // Map get highlightedWords => _highlightedWords;
   List highlightedWords=[];
   int prevTextLength=0;
+  Set<String> get grammaticalWords => _grammaticalWords;
 
   void setPrevTextLength(int newLength){
     prevTextLength=newLength;
     ChangeNotifier();
   }
 
+  void addGrammaticalWord(String word) {
+    _grammaticalWords.add(word.trim().toLowerCase());
+    notifyListeners();
+  }
+
+  void removeGrammaticalWord(String word) {
+    _grammaticalWords.remove(word.trim().toLowerCase());
+    notifyListeners();
+  }
   
   bool toggleHighlight(String word,int start,int end) {
     if (highlightedWords.contains(word)) {
@@ -32,6 +43,10 @@ class HighlightProvider with ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  bool isGrammatical(String word) {
+    return _grammaticalWords.contains(word.toLowerCase());
   }
 
   bool isHighlighted(String word) {

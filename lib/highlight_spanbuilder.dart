@@ -49,7 +49,7 @@ TextSpan build(String data, {TextStyle? textStyle, onTap}) {
   
   @override
   SpecialText? createSpecialText(String flag, {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap, required int index}) {
-    // TODO: implement createSpecialText
+
     throw UnimplementedError();
   }
 
