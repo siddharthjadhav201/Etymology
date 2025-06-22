@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class HighlightProvider with ChangeNotifier {
   final List highlightedWordLocations= [];
-  final Set<String> _grammaticalWords = {"is", "are", "the", "of", "to", "in", "on", "and"};
+  final Set<String> _grammaticalWords = {"is", "are", "the", "of", "to", "in", "on", "and", "when", "than", "more", "for", "has"};
   // Map get highlightedWords => _highlightedWords;
   List highlightedWords=[];
   int prevTextLength=0;

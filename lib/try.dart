@@ -389,7 +389,7 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("name : ${highlightProvider.highlightWordsData[index]["name"]}",
+                            Text("${highlightProvider.highlightWordsData[index]["name"]}",
                           style: TextStyle(fontWeight: FontWeight.w900),),
                             Text(highlightProvider.highlightWordsData[index]["description"]),
                             const SizedBox(height: 20,),
@@ -414,27 +414,27 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
               //       .map((word) => Chip(label: Text(word)))
               //       .toList(),
               // ),
-              const SizedBox(height: 30),
-              GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => GrammarWordsPage()),
-    );
-  },
-  child: Container(
-    margin: const EdgeInsets.only(top: 20),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    decoration: BoxDecoration(
-      color: Colors.green,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Text(
-      'Show Highlighted Words',
-      style: TextStyle(color: Colors.white, fontSize: 18),
-    ),
-  ),
-),
+//               const SizedBox(height: 30),
+//               GestureDetector(
+//   onTap: () {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(builder: (context) => GrammarWordsPage()),
+//     );
+//   },
+//   child: Container(
+//     margin: const EdgeInsets.only(top: 20),
+//     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+//     decoration: BoxDecoration(
+//       color: Colors.green,
+//       borderRadius: BorderRadius.circular(8),
+//     ),
+//     child: Text(
+//       'Show Highlighted Words',
+//       style: TextStyle(color: Colors.white, fontSize: 18),
+//     ),
+//   ),
+// ),
  
 
             ],
