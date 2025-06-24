@@ -10,6 +10,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:http/http.dart" as http;
 import "package:provider/provider.dart";
+import "package:supabase_flutter/supabase_flutter.dart";
 
 // void getWordInfo()async{
 //   var client = http.Client();
@@ -27,7 +28,6 @@ void getWordInfo(BuildContext context)async{
   try{
     String jsonString = await rootBundle.loadString('MultipleEtymoSearch.json');
     jsonData = jsonDecode(jsonString);
-
   }catch (e){
     log("error while retrieving data from json file");
     print(e);
@@ -56,3 +56,10 @@ for(String word in highlightProvider.highlightedWords){
 }
 
 
+addUser()async{
+  try{
+  await Supabase.instance.client.from("login").insert({"id":5,"name":"sanket","role":"student","username":"sanket8555","password":"1234"});
+  }on PostgrestException catch(e){
+    log(e.message);
+  }
+}

@@ -199,7 +199,9 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      addUser();
+                    },
                     child: Container(
                       height: 48,
                       width: 124,
