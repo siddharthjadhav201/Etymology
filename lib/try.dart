@@ -141,24 +141,25 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     final highlightProvider = Provider.of<HighlightProvider>(context);
     return Scaffold(
         body: ListView(
       children: [
         CustomNavbar(),
         Padding(
-          padding: EdgeInsets.only(top: 55, right: 140, left: 140),
+          padding: EdgeInsets.only(top: width*0.038, right: width*0.09, left: width*0.09),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: EdgeInsets.all(25.0),
-                width: 958,
-                height: 83,
+                padding: EdgeInsets.all(width*0.017),
+                width: width*0.665,
+                height: width*0.057,
                 decoration: BoxDecoration(
                   color: const Color(0xFFE7F3FF),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -166,16 +167,16 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                   children: [
                     Image.asset(
                       "assets/i.png",
-                      height: 28,
+                      height: width*0.019 ,
                     ),
                     SizedBox(
-                      width: 25,
+                      width: width*0.017,
                     ),
                     Expanded(
                       child: RichText(
                         text: TextSpan(
                           style: GoogleFonts.poppins(
-                              fontSize: 20, color: Colors.black),
+                              fontSize: width*0.0138, color: Colors.black),
                           children: [
                             TextSpan(text: 'Paste your study notes and click '),
                             TextSpan(
@@ -193,16 +194,16 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 27,
+               SizedBox(
+                height: width*0.019,
               ),
               Row(
                 children: [
                   GestureDetector(
                     onTap: () {},
                     child: Container(
-                      height: 48,
-                      width: 124,
+                      height: width*0.033,
+                      width: width*0.0861,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
@@ -214,7 +215,7 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                       child: Text('Paste',
                           style: GoogleFonts.poppins(
                               letterSpacing: 0.08,
-                              fontSize: 24,
+                              fontSize: width*0.0166,
                               fontWeight: FontWeight.w500,
                               color: Colors.black)),
                     ),
@@ -225,8 +226,8 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                       _highlightSelection();
                     },
                     child: Container(
-                        height: 48,
-                        width: 180,
+                        height: width*0.033,
+                        width: width*0.125,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
@@ -240,16 +241,16 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                           children: [
                             Image.asset(
                               "assets/brush-square.png",
-                              height: 44,
-                              width: 44,
+                              height: width*0.0305,
+                              width: width*0.0305,
                             ),
                             SizedBox(
-                              width: 10,
+                              width: width*0.0069,
                             ),
                             Text('Highlight',
                                 style: GoogleFonts.poppins(
                                     letterSpacing: 0.08,
-                                    fontSize: 24,
+                                    fontSize: width*0.0166,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.black)),
                           ],
@@ -260,8 +261,8 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                     onTap: () {
                       highlightProvider.clear();},
                     child: Container(
-                      height: 48,
-                      width: 144,
+                      height: width*0.033,
+                      width: width*0.1,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
@@ -273,22 +274,22 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                       child: Text('Clear All',
                           style: GoogleFonts.poppins(
                               letterSpacing: 0.08,
-                              fontSize: 24,
+                              fontSize: width*0.0166,
                               fontWeight: FontWeight.w500,
                               color: Colors.black)),
                     ),
                   ),
-                  const SizedBox(
-                    width: 28,
+                   SizedBox(
+                    width: width*0.0194,
                   )
                 ],
               ),
-              const SizedBox(
-                height: 32,
+               SizedBox(
+                height: width*0.02,
               ),
               Container(
-                height: 380,
-                width: 1160,
+                height: width*0.263,
+                width: width*0.805,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
@@ -315,8 +316,8 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 28,
+               SizedBox(
+                height: width*0.0194,
               ),
               GestureDetector(
                 onTap: () {
@@ -326,8 +327,8 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                        height: 48,
-                        width: 180,
+                        height: width*0.033,
+                        width: width*0.125,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                             color: Color.fromARGB(255, 54, 59, 186),
@@ -346,12 +347,12 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                             //   width: 30,
                             // ),
                             SizedBox(
-                              width: 10,
+                              width: width*0.0069,
                             ),
                             Text('Annotate',
                                 style: GoogleFonts.poppins(
                                     letterSpacing: 0.08,
-                                    fontSize: 24,
+                                    fontSize: width*0.0166,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.white)),
                           ],
@@ -366,11 +367,11 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
 
               Column(
                 children: [
-                  const SizedBox(height: 28,),
+                   SizedBox(height: width*0.0194,),
                   Container(
                     padding: EdgeInsets.all(10),
-                    height: 380,
-                    width: 1160,
+                    height: width*0.2638,
+                    width: width*0.805,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
@@ -392,7 +393,7 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                             Text("name : ${highlightProvider.highlightWordsData[index]["name"]}",
                           style: TextStyle(fontWeight: FontWeight.w900),),
                             Text(highlightProvider.highlightWordsData[index]["description"]),
-                            const SizedBox(height: 20,),
+                            SizedBox(height: 0.0138,),
                           ],
                         );
                       }
@@ -404,8 +405,8 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
 
 
 
-              const SizedBox(
-                height: 20,
+               SizedBox(
+                height: 0.0138,
               ),
 
 
@@ -414,27 +415,27 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
               //       .map((word) => Chip(label: Text(word)))
               //       .toList(),
               // ),
-              const SizedBox(height: 30),
-              GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => GrammarWordsPage()),
-    );
-  },
-  child: Container(
-    margin: const EdgeInsets.only(top: 20),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    decoration: BoxDecoration(
-      color: Colors.green,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Text(
-      'Show Highlighted Words',
-      style: TextStyle(color: Colors.white, fontSize: 18),
-    ),
-  ),
-),
+               SizedBox(height: 0.0207),
+//               GestureDetector(
+//   onTap: () {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(builder: (context) => GrammarWordsPage()),
+//     );
+//   },
+//   child: Container(
+//     margin: const EdgeInsets.only(top: 20),
+//     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+//     decoration: BoxDecoration(
+//       color: Colors.green,
+//       borderRadius: BorderRadius.circular(8),
+//     ),
+//     child: Text(
+//       'Show Highlighted Words',
+//       style: TextStyle(color: Colors.white, fontSize: 18),
+//     ),
+//   ),
+// ),
  
 
             ],
