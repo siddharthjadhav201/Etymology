@@ -17,6 +17,8 @@ dependencies:
   extended_text_field: ^16.0.2
   http: ^1.4.0
   flutter_screenutil: ^5.6.0
+  supabase_flutter: ^2.9.1
+  flutter_svg: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +33,4 @@ flutter:
     - assets/magicpen.png
     - assets/Logo.png
     - assets/MultipleEtymoSearch.json
+    - assets/Svg/
