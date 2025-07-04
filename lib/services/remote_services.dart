@@ -105,8 +105,8 @@ Future<Map> getRequestCount(String username) async {
 
 void annotate(BuildContext context) async {
   //setting request limit
-  int requestCount=30;
-  int requestCountHour=5;
+  int requestCount=300;
+  int requestCountHour=100;
   var supabase = Supabase.instance.client;
   List words = context.read<HighlightProvider>().highlightedWords;
   String username = context.read<LoginProvider>().username;
@@ -143,11 +143,12 @@ Future<Map> getWordData(List words)async{
 Future<List> getDataFromDatabase(List words)async{
   var supabase = Supabase.instance.client;
   final filter = words.map((word) => 'word.eq.$word').join(',');
-  final dataFromDatabase = await supabase
+  try{
+    final dataFromDatabase = await supabase
         .from('medical_terms')
         .select("word,description,origin,prefix,suffix,definition")
         .or(filter);
-  print(dataFromDatabase);
+         print(dataFromDatabase);
   Map wordData={};
   for(var item in dataFromDatabase){
     wordData.addAll({item["word"]:item});
@@ -155,6 +156,14 @@ Future<List> getDataFromDatabase(List words)async{
   List wordNotInDatabase = words.where((word) =>!wordData.keys.contains(word) ).toList();
   log("words not in database $wordNotInDatabase");
   return [wordData,wordNotInDatabase];
+  }catch(e){
+    log("error getDataFromDatabase");
+    return [{},[]];
+  }
+
+  
+ 
+  
 }
 
 

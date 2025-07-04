@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:flutter/gestures.dart';
+// import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'providers.dart';
@@ -19,46 +19,21 @@ TextSpan build(String data, {TextStyle? textStyle, onTap}) {
   // List wordLocations=highlightedWords.values.toList();
   highlightedWordsLocations.sort((a, b) => a[0].compareTo(b[0]));
   int globalStart=0;
-  int highlightedWordNumber=-1;
   for (final highlightedWordsLocation in highlightedWordsLocations) {
-    // final part = match.group(0)!;
-    // final cleanPart = part.trim();
-    // final isHighlighted = highlightProvider.isHighlighted(cleanPart);
     children.add(TextSpan(
       text: data.substring(globalStart,highlightedWordsLocation[0]),
       style: textStyle?.copyWith(
         backgroundColor: null,
       ),
     ));
-    highlightedWordNumber++;
     children.add(TextSpan(
-      text: data.substring(highlightedWordsLocation[0],highlightedWordsLocation[1]+1),
+      text: data.substring(highlightedWordsLocation[0],highlightedWordsLocation[1]),
       style: textStyle?.copyWith(
             backgroundColor: Colors.yellow.withAlpha(128),
           ),
-    //       recognizer: TapGestureRecognizer()
-    // ..onTapDown = (details) {
-    //   highlightProvider.toggleInfoPopUp(details.globalPosition,data.substring(highlightedWordsLocation[0],highlightedWordsLocation[1]+1));
-    //   log("word number: $highlightedWordNumber");
-    //   }
     ),
     );
-
-
-    // children.add(WidgetSpan(
-    //   child: GestureDetector(
-    //  onTapDown: (details){
-    //   highlightProvider.toggleInfoPopUp(details.globalPosition,highlightedWordNumber);
-    //  },
-    //     child: Text(
-    //       data.substring(highlightedWordsLocation[0],highlightedWordsLocation[1]+1),
-    //       style: textStyle?.copyWith(
-    //         backgroundColor: Colors.yellow.withAlpha(128),
-    //       ),
-    //     ),
-    //   ),
-    // ));
-    globalStart=highlightedWordsLocation[1]+1;
+    globalStart=highlightedWordsLocation[1];
   }
   children.add(TextSpan(
       text: data.substring(globalStart),

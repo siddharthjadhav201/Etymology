@@ -5,9 +5,9 @@ import 'package:etymology/popUps.dart';
 import 'package:flutter/material.dart';
 class HighlightProvider with ChangeNotifier {
   BuildContext? homeScreenContext;
-  final List highlightedWordLocations= [];
+  final List<List> highlightedWordLocations= [];
   final List<HighlightedRange> highlightedRanges=[];  //for disable editing highlighred words
-  final Set<String> _grammaticalWords = {"is", "are", "the", "of", "to", "in", "on", "and"};
+  final Set<String> _grammaticalWords = {"is", "are", "the", "of", "to", "in", "on", "and","as","a","it","for","like","or","from","with","such","about","often"};
   // Map get highlightedWords => _highlightedWords;
   List highlightedWords=[];
   int prevTextLength=0;
@@ -42,7 +42,7 @@ class HighlightProvider with ChangeNotifier {
     } else if (highlightedWords.length < 10) {
       highlightedWords.add(word);
       highlightedWordLocations.add([start,end]);
-      highlightedRanges.add(HighlightedRange(start, end+1),);
+      highlightedRanges.add(HighlightedRange(start, end),);
       log("$highlightedWords");
       log("$highlightedWordLocations");
       notifyListeners();
@@ -73,25 +73,25 @@ class HighlightProvider with ChangeNotifier {
     notifyListeners();
   }
 
-toggleInfoPopUp(Offset position,String word){
-  showPopupAtFixedPosition(homeScreenContext!,position,word);
-  // Size screenSize=MediaQuery.of(homeScreenContext!).size;
-  // List relativePosition=[position.dx/screenSize.width,position.dy/screenSize.height];
-  // if(activePopUpInfo.containsKey(word)){
-  //   activePopUpInfo.remove(word);
-  //   print(activePopUpInfo);
-  //   notifyListeners();
-  // }else{
-  //   activePopUpInfo.addAll({word:relativePosition});
-  //   print(activePopUpInfo);
-  //   notifyListeners();
-  // }
-}
+// toggleInfoPopUp(Offset position,String word){
+//   showPopupAtFixedPosition(homeScreenContext!,position,word);
+//   // Size screenSize=MediaQuery.of(homeScreenContext!).size;
+//   // List relativePosition=[position.dx/screenSize.width,position.dy/screenSize.height];
+//   // if(activePopUpInfo.containsKey(word)){
+//   //   activePopUpInfo.remove(word);
+//   //   print(activePopUpInfo);
+//   //   notifyListeners();
+//   // }else{
+//   //   activePopUpInfo.addAll({word:relativePosition});
+//   //   print(activePopUpInfo);
+//   //   notifyListeners();
+//   // }
+// }
 }
 
 
 class LoginProvider extends ChangeNotifier{
-  String username="";
+  String username="sanket855";
   void setUsername(String newUsername){
     username=newUsername;
     notifyListeners();

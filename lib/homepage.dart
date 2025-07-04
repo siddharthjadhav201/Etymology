@@ -21,7 +21,6 @@ class _NotesEditorState extends State<NotesEditor> {
   BuildContext? homePageContext;
   final TextEditingController controller = TextEditingController();
   final UndoHistoryController undoController= UndoHistoryController();
-  TextSelection? previousSelection;
   bool _limitPopupShown = false;
   // int _charCount = 0;
 
@@ -40,7 +39,8 @@ class _NotesEditorState extends State<NotesEditor> {
   @override
 void initState() {
   super.initState();
-  context.read<HighlightProvider>().homeScreenContext=context;
+  var highlightProvider= context.read<HighlightProvider>();
+  highlightProvider.homeScreenContext=context;
   controller.addListener(() {
     if (controller.text.length >= 5000 && !_limitPopupShown) {
       _limitPopupShown = true;
@@ -50,12 +50,6 @@ void initState() {
     if (controller.text.length < 5000) {
       _limitPopupShown = false; 
     }
-    final currentSelection = controller.selection;
-      if (previousSelection != currentSelection && currentSelection.isValid) {
-        print("Previous Selection: $previousSelection");
-        print("Current Selection: $currentSelection");
-        previousSelection = currentSelection;
-      }
   });
 }
   bool isAlphanumeric(String char) {
@@ -110,13 +104,13 @@ void showCenterPopup(BuildContext context, String message) {
       if (selectedWord.isEmpty || selectedWord.contains(" ")) {return;}
 
 if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
-  showCenterPopup(context, "⚠️ '$selectedWord' is a grammatical word and cannot be highlighted.");
+  showCenterPopup(context, "⚠️ '$selectedWord' is not a scientific term and cannot be highlighted.");
   return;
 }
 
       final success = context
           .read<HighlightProvider>()
-          .toggleHighlight(selectedWord, start, end);
+          .toggleHighlight(selectedWord, start, end+1);
       if (!success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("You can highlight up to 10 words only.")),
@@ -124,22 +118,22 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
       }
     }
   }
-
-  void updateLocations() {
-    HighlightProvider highlightProvider = context.read<HighlightProvider>();
-    List highlightedWordsLocations = highlightProvider.highlightedWordLocations.map((element){return element;}).toList();
-    int diff = controller.text.length - highlightProvider.prevTextLength;
-      int index=0;
-      for (List highlightedWordsLocation in highlightedWordsLocations){
-       if( highlightedWordsLocation[0] > previousSelection!.start-2){
-        highlightedWordsLocation[0]=highlightedWordsLocation[0]+diff;
-        highlightedWordsLocation[1]=highlightedWordsLocation[1]+diff;
-        highlightProvider.highlightedRanges[index]=HighlightedRange(highlightedWordsLocation[0]+diff,highlightedWordsLocation[1]+diff);
-       }
-      }
+  // void updateLocations() {
+  //   HighlightProvider highlightProvider = context.read<HighlightProvider>();
+  //   List highlightedWordsLocations = highlightProvider.highlightedWordLocations.map((element){return element;}).toList();
+  //   int diff = controller.text.length - highlightProvider.prevTextLength;
+  //     int index=0;
+  //     for (List highlightedWordsLocation in highlightedWordsLocations){
+  //      if( highlightedWordsLocation[0] > previousSelection!.start-2){
+  //       highlightedWordsLocation[0]=highlightedWordsLocation[0]+diff;
+  //       highlightedWordsLocation[1]=highlightedWordsLocation[1]+diff;
+  //       highlightProvider.highlightedRanges[index]=HighlightedRange(highlightedWordsLocation[0]+diff,highlightedWordsLocation[1]+diff);
+  //      }
+  //     }
     
-    highlightProvider.setPrevTextLength(controller.text.length);
-  }
+  //   highlightProvider.setPrevTextLength(controller.text.length);
+  // }
+
   
 
   @override
@@ -295,6 +289,7 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                   Container(
                     height: width*0.263,
                     width: width*0.805,
+                  padding:EdgeInsets.all(10),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
@@ -306,11 +301,13 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                       data: TextSelectionThemeData(
                         selectionColor: Colors.blue,
                       ),
+
+
                       child: ExtendedTextField(
                         onChanged: (string) {
-                          updateLocations();
+                          // updateLocations();
                         },
-                        inputFormatters: [HighlightBlockFormatter(highlightProvider.highlightedRanges)],
+                        inputFormatters: [HighlightBlockFormatter(highlightProvider.highlightedRanges, context)],
                         undoController: undoController,
                         controller: controller,
                         expands: true,
@@ -376,7 +373,8 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                     children: [
                        SizedBox(height: width*0.0194,),
                       Container(
-                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(20),
                         height: width*0.2638,
                         width: width*0.805,
                         decoration: BoxDecoration(
