@@ -4,6 +4,7 @@ import "dart:developer";
 import "package:etymology/highlight_block_formatter.dart";
 import "package:etymology/navbar.dart";
 import "package:etymology/services/remote_services.dart";
+import "package:etymology/string_functions.dart";
 import "package:flutter/material.dart";
 // import "package:http/http.dart";
 import "package:provider/provider.dart";
@@ -52,31 +53,6 @@ void initState() {
     }
   });
 }
-  bool isAlphanumeric(String char) {
-    return RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
-  }
-
-  bool isSymbol(String char) {
-    return !RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
-  }
-
-void showCenterPopup(BuildContext context, String message) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      content: Text(message),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text("OK"),
-        ),
-      ],
-    ),
-  );
-}
-
- 
 
   void _highlightSelection() {
     log("${controller.selection.start}  ,  ${controller.selection.end}");
@@ -91,23 +67,26 @@ void showCenterPopup(BuildContext context, String message) {
     end = text[selection.end-1] == " " || isSymbol(text[selection.end-1])
         ? selection.end - 2
         : end = selection.end - 1;
-
+    if(start>end){
+      return;
+    }
     if (start == 0
         ? false
-        : isAlphanumeric(text[start - 1]) || end == text.length-1
+        : isAlphanumeric(text[start - 1]) ? true : end == text.length-1
             ? false
             : isAlphanumeric(text[end + 1])) {
       return;
     } else {
       final selectedWord =
           text.substring(selection.start, selection.end).trim();
-      if (selectedWord.isEmpty || selectedWord.contains(" ")) {return;}
+      if (selectedWord.isEmpty || selectedWord.contains(" ") || containsSymbol(selectedWord)) {
+        return;
+        }
 
 if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
   showCenterPopup(context, "⚠️ '$selectedWord' is not a scientific term and cannot be highlighted.");
   return;
 }
-
       final success = context
           .read<HighlightProvider>()
           .toggleHighlight(selectedWord, start, end+1);
@@ -118,22 +97,7 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
       }
     }
   }
-  // void updateLocations() {
-  //   HighlightProvider highlightProvider = context.read<HighlightProvider>();
-  //   List highlightedWordsLocations = highlightProvider.highlightedWordLocations.map((element){return element;}).toList();
-  //   int diff = controller.text.length - highlightProvider.prevTextLength;
-  //     int index=0;
-  //     for (List highlightedWordsLocation in highlightedWordsLocations){
-  //      if( highlightedWordsLocation[0] > previousSelection!.start-2){
-  //       highlightedWordsLocation[0]=highlightedWordsLocation[0]+diff;
-  //       highlightedWordsLocation[1]=highlightedWordsLocation[1]+diff;
-  //       highlightProvider.highlightedRanges[index]=HighlightedRange(highlightedWordsLocation[0]+diff,highlightedWordsLocation[1]+diff);
-  //      }
-  //     }
-    
-  //   highlightProvider.setPrevTextLength(controller.text.length);
-  // }
-
+  
   
 
   @override

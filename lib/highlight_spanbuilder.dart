@@ -12,7 +12,8 @@ class HighlightSpanBuilder extends SpecialTextSpanBuilder {
 
  @override
 TextSpan build(String data, {TextStyle? textStyle, onTap}) {
-  final List<InlineSpan> children = [];
+  try{
+      final List<InlineSpan> children = [];
   // final wordRegEx = RegExp(r'(\s+|\S+)'); // Captures both words and spaces
   // final matches = wordRegEx.allMatches(data);
   List highlightedWordsLocations = highlightProvider.highlightedWordLocations.map((element){return element;}).toList();
@@ -44,12 +45,16 @@ TextSpan build(String data, {TextStyle? textStyle, onTap}) {
 
   return TextSpan(children: children, style: textStyle);
 
+  }catch(e){
+    log("***error in rendering : $e");
+    return TextSpan();
+  }
+
 
   }
   
   @override
   SpecialText? createSpecialText(String flag, {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap, required int index}) {
-
     throw UnimplementedError();
   }
 
