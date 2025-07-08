@@ -142,7 +142,7 @@ Future<Map> getWordData(List words)async{
 
 Future<List> getDataFromDatabase(List words)async{
   var supabase = Supabase.instance.client;
-  final filter = words.map((word) => 'word.eq.$word').join(',');
+  final filter = words.map((word) => 'word.ilike.$word').join(',');
   try{
     final dataFromDatabase = await supabase
         .from('medical_terms')

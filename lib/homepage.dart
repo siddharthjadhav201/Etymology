@@ -77,8 +77,8 @@ void initState() {
             : isAlphanumeric(text[end + 1])) {
       return;
     } else {
-      final selectedWord =
-          text.substring(selection.start, selection.end).trim();
+      final selectedWord =text.substring(selection.start, selection.end).trim().toLowerCase();
+
       if (selectedWord.isEmpty || selectedWord.contains(" ") || containsSymbol(selectedWord)) {
         return;
         }

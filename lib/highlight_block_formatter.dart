@@ -15,11 +15,13 @@ class HighlightBlockFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
+    
   ) {
+    int diff = newValue.text.length - oldValue.text.length;
     try{
       for (final range in blockedRanges) {
       if (_hasIntersection(
-          range, oldValue.selection, newValue.selection, newValue.text)) {
+          range, oldValue.selection, newValue.selection, newValue.text ,diff)) {
         // Prevent change
         return oldValue;
       }
@@ -33,25 +35,23 @@ class HighlightBlockFormatter extends TextInputFormatter {
       var highlightProvider = context.read<HighlightProvider>();
       List highlightedWordLocations =
           highlightProvider.highlightedWordLocations;
-      int diff = newValue.text.length - oldValue.text.length;
+      
       int index = 0;
-      log("previous locations: $highlightedWordLocations");
+      log("old word locations: $highlightedWordLocations");
       for (List highlightedWordLocation in highlightedWordLocations) {
-        log("update locations $highlightedWordLocation");
+        log("in the loop $index");
         List newHighlightedWordLocation = [];
         if (highlightedWordLocation[0] > oldValue.selection.start - 2) {
-          log("in the loop $index");
           newHighlightedWordLocation.add(highlightedWordLocation[0] + diff);
           newHighlightedWordLocation.add(highlightedWordLocation[1] + diff);
           highlightProvider.highlightedRanges[index] = HighlightedRange(
               newHighlightedWordLocation[0], newHighlightedWordLocation[1]);
           highlightProvider.highlightedWordLocations[index] =
               newHighlightedWordLocation;
-          log("$index updated locations for highlighted words : ${newHighlightedWordLocation[0]} , ${newHighlightedWordLocation[1]}");
         }
         index++;
       }
-      log("highlighted word locations : ${highlightProvider.highlightedWordLocations}");
+      log("new word locations : ${highlightProvider.highlightedWordLocations}");
       log("****returning new value");
       return newValue;
     } catch (e) {
@@ -65,12 +65,15 @@ class HighlightBlockFormatter extends TextInputFormatter {
     TextSelection oldSelection,
     TextSelection newSelection,
     String newText,
+    int diff,
   ) {
     try {
       if (oldSelection.end <= range.start) {
-        if (oldSelection.end == range.start) {
+        if (oldSelection.end == range.start ) {
           log("checking for front space");
-          return newSelection.end==0 ? false : isAlphanumeric(newText[newSelection.end - 1]);
+          log("${newSelection.end>range.start}");
+          log("${isAlphanumeric(newText[newSelection.end - 1])}");
+          return newSelection.end==0 ? false : newSelection.end > range.start+diff ? true : isAlphanumeric(newText[newSelection.end - 1]);
         }
         return false;
       } else if (oldSelection.start >= range.end &&
