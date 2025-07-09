@@ -1,6 +1,7 @@
 import "dart:developer";
 
 // import "package:etymology/grammaticalwordpage.dart";
+import "package:etymology/exportPDF.dart";
 import "package:etymology/highlight_block_formatter.dart";
 import "package:etymology/navbar.dart";
 import "package:etymology/services/remote_services.dart";
@@ -286,15 +287,43 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                    SizedBox(
                     height: width*0.0194,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      log(context.read<LoginProvider>().username);
-                      annotate(context);
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: (){
+                          if(highlightProvider.highlightWordsData.isNotEmpty){
+                            genaratePDF(highlightProvider.highlightWordsData);
+                          }
+                          
+                        },
+                        child: Container(
+                            height: width*0.033,
+                            width: width*0.125,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Color.fromARGB(255, 255, 1, 1),
+                                borderRadius: BorderRadius.circular(8),
+                                // color: Color.fromARGB(1, 255, 255, 255),
+                                border: Border.all(
+                                  width: 1,
+                                  color: Color.fromARGB(255, 166, 166, 166),
+                                )),
+                            child: Text('PDF',
+                                style: GoogleFonts.poppins(
+                                    letterSpacing: 0.08,
+                                    fontSize: width*0.0166,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white))),
+                      ),
+                          SizedBox(
+                            width:width*0.013,
+                          ),
+                      GestureDetector(
+                        onTap: (){
+                          annotate(context);
+                        },
+                        child: Container(
                             height: width*0.033,
                             width: width*0.125,
                             alignment: Alignment.center,
@@ -325,8 +354,8 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                                         color: Colors.white)),
                               ],
                             )),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
             
                   //annotate box
