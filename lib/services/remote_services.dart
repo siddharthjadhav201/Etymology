@@ -1,6 +1,7 @@
 
 import "dart:convert";
 import "dart:developer";
+import "package:etymology/popUps.dart";
 import "package:etymology/providers.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -8,21 +9,21 @@ import "package:flutter/services.dart";
 import "package:provider/provider.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 
-void showCenterPopup(BuildContext context, String message) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      content: Text(message),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text("OK"),
-        ),
-      ],
-    ),
-  );
-}
+// void showCenterPopup(BuildContext context, String message) {
+//   showDialog(
+//     context: context,
+//     builder: (context) => AlertDialog(
+//       content: Text(message),
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//       actions: [
+//         TextButton(
+//           onPressed: () => Navigator.of(context).pop(),
+//           child: Text("OK"),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 Future<int> registerUser(String name, String email, String username, String selectedRole,
     String password) async {

@@ -3,6 +3,15 @@ import 'dart:developer';
 import 'package:etymology/highlight_block_formatter.dart';
 import 'package:etymology/popUps.dart';
 import 'package:flutter/material.dart';
+
+class LoginProvider extends ChangeNotifier{
+  String username="sanket855";
+  void setUsername(String newUsername){
+    username=newUsername;
+    notifyListeners();
+  }
+}
+
 class HighlightProvider with ChangeNotifier {
   BuildContext? homeScreenContext;
   final List<List> highlightedWordLocations= [];
@@ -90,10 +99,4 @@ class HighlightProvider with ChangeNotifier {
 }
 
 
-class LoginProvider extends ChangeNotifier{
-  String username="sanket855";
-  void setUsername(String newUsername){
-    username=newUsername;
-    notifyListeners();
-  }
-}
+

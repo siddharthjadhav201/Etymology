@@ -1,9 +1,10 @@
 import "dart:developer";
 
 // import "package:etymology/grammaticalwordpage.dart";
-import "package:etymology/exportPDF.dart";
+import "package:etymology/pdfExport.dart";
 import "package:etymology/highlight_block_formatter.dart";
 import "package:etymology/navbar.dart";
+import "package:etymology/popUps.dart";
 import "package:etymology/services/remote_services.dart";
 import "package:etymology/string_functions.dart";
 import "package:flutter/material.dart";
@@ -291,9 +292,9 @@ if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                        onTap: (){
+                        onTap: () async{
                           if(highlightProvider.highlightWordsData.isNotEmpty){
-                            genaratePDF(highlightProvider.highlightWordsData);
+                            notePreviewPopUp(context,highlightProvider.highlightWordsData);
                           }
                           
                         },
