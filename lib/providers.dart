@@ -14,15 +14,21 @@ class LoginProvider extends ChangeNotifier{
 
 class HighlightProvider with ChangeNotifier {
   BuildContext? homeScreenContext;
-  final List<List> highlightedWordLocations= [];
+  // final List<List<int>> highlightedWordSelectionLocations= [];
   final List<HighlightedRange> highlightedRanges=[];  //for disable editing highlighred words
   final Set<String> _grammaticalWords = {"is", "are", "the", "of", "to", "in", "on", "and","as","a","it","for","like","or","from","with","such","about","often"};
-  // Map get highlightedWords => _highlightedWords;
   List highlightedWords=[];
   int prevTextLength=0;
   Set<String> get grammaticalWords => _grammaticalWords;
   Map highlightWordsData={};
   Map activePopUpInfo={};
+  TextEditingController? noteController;
+  bool isAnnotated = false;
+
+  setAnnotatedStatus(bool value){
+    isAnnotated=value;
+    notifyListeners();
+  }
 
   void setPrevTextLength(int newLength){
     prevTextLength=newLength;
@@ -41,19 +47,23 @@ class HighlightProvider with ChangeNotifier {
   
   bool toggleHighlight(String word,int start,int end) {
     if (highlightedWords.contains(word)) {
-      highlightedWordLocations.removeAt(highlightedWords.indexOf(word));
+      // highlightedWordLocations.removeAt(highlightedWords.indexOf(word));
       highlightedRanges.removeAt(highlightedWords.indexOf(word));
+      for(var i in highlightedRanges){
+        print(i.start);
+      }
       highlightedWords.remove(word);
       log("$highlightedWords");
-      log("$highlightedWordLocations");
+      // log("$highlightedWordLocations");
       notifyListeners();
       return true;
     } else if (highlightedWords.length < 10) {
       highlightedWords.add(word);
-      highlightedWordLocations.add([start,end]);
-      highlightedRanges.add(HighlightedRange(start, end),);
+      // highlightedWordLocations.add([start,end]);
+      highlightedRanges.add(HighlightedRange(start, end ,word.length,start),);
+      // highlightedWordSelectionLocations.add([start,word.length]);
       log("$highlightedWords");
-      log("$highlightedWordLocations");
+      // log("$highlightedWordLocations");
       notifyListeners();
       return true;
     } else {
@@ -71,9 +81,10 @@ class HighlightProvider with ChangeNotifier {
 
   void clear() {
     highlightedWords.clear();
-    highlightedWordLocations.clear();
+    // highlightedWordLocations.clear();
     highlightWordsData.clear();
     highlightedRanges.clear();
+    isAnnotated=false;
     notifyListeners();
   }
 
@@ -82,20 +93,20 @@ class HighlightProvider with ChangeNotifier {
     notifyListeners();
   }
 
-// toggleInfoPopUp(Offset position,String word){
-//   showPopupAtFixedPosition(homeScreenContext!,position,word);
-//   // Size screenSize=MediaQuery.of(homeScreenContext!).size;
-//   // List relativePosition=[position.dx/screenSize.width,position.dy/screenSize.height];
-//   // if(activePopUpInfo.containsKey(word)){
-//   //   activePopUpInfo.remove(word);
-//   //   print(activePopUpInfo);
-//   //   notifyListeners();
-//   // }else{
-//   //   activePopUpInfo.addAll({word:relativePosition});
-//   //   print(activePopUpInfo);
-//   //   notifyListeners();
-//   // }
-// }
+toggleInfoPopUp(Offset position,String word){
+  showPopupAtFixedPosition(homeScreenContext!,position,word);
+  // Size screenSize=MediaQuery.of(homeScreenContext!).size;
+  // List relativePosition=[position.dx/screenSize.width,position.dy/screenSize.height];
+  // if(activePopUpInfo.containsKey(word)){
+  //   activePopUpInfo.remove(word);
+  //   print(activePopUpInfo);
+  //   notifyListeners();
+  // }else{
+  //   activePopUpInfo.addAll({word:relativePosition});
+  //   print(activePopUpInfo);
+  //   notifyListeners();
+  // }
+}
 }
 
 

@@ -1,6 +1,9 @@
 
 import "dart:typed_data";
 
+import "package:etymology/popUps.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pd;
 import "package:universal_html/html.dart" as html;
@@ -23,11 +26,19 @@ pd.Container wordData(data){
   
 }
 
-Future<Uint8List> genaratePDF(Map data)async{
-  final pdf =pd.Document(title: "etymo");
+Future genaratePDF(Map data)async{
+  final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular-Font.ttf');
+final ttf = pd.Font.ttf(fontData);
+  final pdf =pd.Document();
   
     pdf.addPage(
     pd.MultiPage(
+       theme: pd.ThemeData.withFont(
+        base: ttf,
+        bold: ttf,
+        italic: ttf,
+        boldItalic: ttf,
+      ),
       pageFormat: PdfPageFormat.a4,
       margin: pd.EdgeInsets.all(20),
       build: (context) {
@@ -40,15 +51,13 @@ Future<Uint8List> genaratePDF(Map data)async{
               child: pd.Column(
                 crossAxisAlignment: pd.CrossAxisAlignment.start,
                 children: [
-                  pd.Text(value["word"] ?? '',
-                      style: pd.TextStyle(
-                           fontWeight: pd.FontWeight.bold)),
+                  pd.Text(value["word"] ?? '',style: pd.TextStyle(font: ttf) ),
                   pd.SizedBox(height: 4),
-                  pd.Text("Description: ${value["description"] ?? ''}"),
-                  pd.Text("Origin: ${value["origin"] ?? ''}"),
-                  pd.Text("Prefix: ${value["prefix"] ?? ''}"),
-                  pd.Text("Suffix: ${value["suffix"] ?? ''}"),
-                  pd.Text("Definition: ${value["definition"] ?? ''}"),
+                  pd.Text("Description: ${value["description"] ?? ''}",style: pd.TextStyle(font: ttf) ),
+                  pd.Text("Origin: ${value["origin"] ?? ''}",style: pd.TextStyle(font: ttf) ),
+                  pd.Text("Prefix: ${value["prefix"] ?? ''}",style: pd.TextStyle(font: ttf) ),
+                  pd.Text("Suffix: ${value["suffix"] ?? ''}",style: pd.TextStyle(font: ttf) ),
+                  pd.Text("Definition: ${value["definition"] ?? ''}",style: pd.TextStyle(font: ttf) ),
                 ],
               ),
             ),
@@ -59,13 +68,18 @@ Future<Uint8List> genaratePDF(Map data)async{
       },
     ),
   );
-
-  return pdf.save();
+  downloadPDF(await pdf.save());
+  // return pdf.save();
             
 }
 
-downloadPDF(Uint8List byte){
-
+downloadPDF(Uint8List bytes){
+  final blob = html.Blob([bytes], 'application/pdf');
+  final url = html.Url.createObjectUrlFromBlob(blob);
+  final anchor = html.AnchorElement(href: url)
+    ..setAttribute("download", "notes.pdf")
+    ..click();
+  html.Url.revokeObjectUrl(url);
 }
 
 

@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.6
   provider: ^6.1.5
   google_fonts: ^6.1.0
   path_provider: ^2.0.15
@@ -39,3 +40,6 @@ flutter:
     - assets/Logo.png
     - assets/MultipleEtymoSearch.json
     - assets/Svg/
+    - assets/fonts/NotoSans-Regular-Font.ttf
+    - assets/edit.png
+   
