@@ -185,6 +185,7 @@ void exportNotesPopUp(BuildContext context, data) {
                   GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
+              
                       },
                       child: Icon(Icons.arrow_back)),
                   SizedBox(width: 10),

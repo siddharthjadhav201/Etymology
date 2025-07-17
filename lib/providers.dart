@@ -46,9 +46,24 @@ class HighlightProvider with ChangeNotifier {
   }
   
   bool toggleHighlight(String word,int start,int end) {
-    if (highlightedWords.contains(word)) {
-      // highlightedWordLocations.removeAt(highlightedWords.indexOf(word));
-      highlightedRanges.removeAt(highlightedWords.indexOf(word));
+    if ( !highlightedWords.contains(word) && highlightedWords.length < 10) {
+      if(highlightedWords.length == 10){
+        return false;
+      }else{
+           highlightedWords.add(word);
+      // highlightedWordLocations.add([start,end]);
+      highlightedRanges.add(HighlightedRange(start, end ,word.length,start),);
+      // highlightedWordSelectionLocations.add([start,word.length]);
+      log("$highlightedWords");
+      // log("$highlightedWordLocations");
+      notifyListeners();
+      return true;
+      }
+    } else {
+      print("removing");
+         List<int> allStarts = highlightedRanges.map((e) => e.start).toList();
+      if(allStarts.contains(start)){
+        highlightedRanges.removeAt(highlightedWords.indexOf(word));
       for(var i in highlightedRanges){
         print(i.start);
       }
@@ -57,17 +72,13 @@ class HighlightProvider with ChangeNotifier {
       // log("$highlightedWordLocations");
       notifyListeners();
       return true;
-    } else if (highlightedWords.length < 10) {
-      highlightedWords.add(word);
-      // highlightedWordLocations.add([start,end]);
-      highlightedRanges.add(HighlightedRange(start, end ,word.length,start),);
-      // highlightedWordSelectionLocations.add([start,word.length]);
-      log("$highlightedWords");
-      // log("$highlightedWordLocations");
-      notifyListeners();
-      return true;
-    } else {
-      return false;
+      }else{
+        log("show message");
+        return true;
+
+      }
+     
+      
     }
   }
 

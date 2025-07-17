@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class OverlayHelper {
   static OverlayEntry? _entry;
-
   static void showTooltip({
     required BuildContext context,
     required GlobalKey key,
@@ -23,7 +22,7 @@ class OverlayHelper {
           color: Colors.transparent,
           child: Container(
             width: 145,
-            height: 145,
+            height: 160,
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
