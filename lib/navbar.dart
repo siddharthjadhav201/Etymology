@@ -53,6 +53,7 @@ class CustomNavbar extends StatelessWidget {
         title,
         style: GoogleFonts.poppins(
           color: Colors.white,
+          fontSize: 20,
           fontWeight: FontWeight.w400,
         ),
       ),

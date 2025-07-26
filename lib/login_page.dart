@@ -1,4 +1,5 @@
 
+import 'package:etymology/popUps.dart';
 import 'package:etymology/providers.dart';
 import 'package:etymology/register_page.dart';
 import 'package:etymology/services/remote_services.dart';

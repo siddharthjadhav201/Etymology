@@ -1,6 +1,6 @@
 
-import 'package:etymology/login_page.dart';
 import 'package:etymology/providers.dart';
+import 'package:etymology/try.dart';
 import 'package:flutter/material.dart';
 import "package:provider/provider.dart";
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,7 +28,8 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return  MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: NotesEditor(),
+      // home:Try(),
+      home:NotesEditor(),
       // home: LoginScreen(),
       //Secondpage(),
       //NotesEditor(),

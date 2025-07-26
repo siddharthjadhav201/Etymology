@@ -1,6 +1,7 @@
 
 import "dart:convert";
 import "dart:developer";
+import "package:etymology/popUps.dart";
 import "package:etymology/providers.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -8,21 +9,6 @@ import "package:flutter/services.dart";
 import "package:provider/provider.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 
-void showCenterPopup(BuildContext context, String message) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      content: Text(message),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text("OK"),
-        ),
-      ],
-    ),
-  );
-}
 
 Future<int> registerUser(String name, String email, String username, String selectedRole,
     String password) async {
@@ -148,13 +134,14 @@ Future<List> getDataFromDatabase(List words)async{
         .from('medical_terms')
         .select("word,description,origin,prefix,suffix,definition")
         .or(filter);
-         print(dataFromDatabase);
+        //  print(dataFromDatabase);
   Map wordData={};
   for(var item in dataFromDatabase){
-    wordData.addAll({item["word"]:item});
+    wordData.addAll({item["word"].toLowerCase():item});
   }
   List wordNotInDatabase = words.where((word) =>!wordData.keys.contains(word) ).toList();
   log("words not in database $wordNotInDatabase");
+  print(wordData);
   return [wordData,wordNotInDatabase];
   }catch(e){
     log("error getDataFromDatabase");
