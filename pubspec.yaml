@@ -11,12 +11,16 @@ dependencies:
     sdk: flutter
   provider: ^6.1.5
   google_fonts: ^6.1.0
-  path_provider: ^2.0.15
+  path_provider: ^2.1.2
   path_provider_linux: ^2.1.0
   path_provider_windows: ^2.1.0
   extended_text_field: ^16.0.2
   http: ^1.4.0
   flutter_screenutil: ^5.6.0
+  pdf: ^3.10.4
+  permission_handler: ^11.3.1
+  open_file: ^3.3.2
+  printing: ^5.11.0
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +35,13 @@ flutter:
     - assets/magicpen.png
     - assets/Logo.png
     - assets/MultipleEtymoSearch.json
+    - assets/term_def.png
+    - assets/medical_term_sign.png
+    - assets/export.png
+    - assets/edit.png
+    - assets/fonts/Poppins-Regular.ttf
+    - assets/fonts/Poppins-Bold.ttf
+    - assets/pdf.png
+    - assets/share_link.png
+    - assets/word.png
+    

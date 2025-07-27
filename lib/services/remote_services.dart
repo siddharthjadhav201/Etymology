@@ -8,7 +8,7 @@ import "dart:developer";
 import "package:etymology/providers.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:http/http.dart" as http;
+
 import "package:provider/provider.dart";
 
 // void getWordInfo()async{
@@ -30,8 +30,9 @@ void getWordInfo(BuildContext context)async{
 
   }catch (e){
     log("error while retrieving data from json file");
-    print(e);
+    // print(e);
   }
+  
 
   List wordsInDatabase=[];
   for(Map item in jsonData){
@@ -41,9 +42,9 @@ void getWordInfo(BuildContext context)async{
       log("error in database");
     }
   }
-  print(wordsInDatabase);
+  // print(wordsInDatabase);
 
-  List highlightWordsData=[];
+  List<Map<String, dynamic>> highlightWordsData=[];
 for(String word in highlightProvider.highlightedWords){
   if(wordsInDatabase.contains(word)){
     highlightWordsData.add({"name":word,"description":jsonData[wordsInDatabase.indexOf(word)]["description"]});
