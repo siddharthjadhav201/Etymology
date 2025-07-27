@@ -6,6 +6,7 @@ import "package:etymology/highlight_block_formatter.dart";
 import "package:etymology/pdfStructure.dart";
 import "package:etymology/popUps.dart";
 import "package:etymology/string_functions.dart";
+import "package:etymology/try.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:pdf/pdf.dart";
@@ -37,7 +38,6 @@ List<pd.InlineSpan> paragraphColumn(item,pd.Font ttf){
       style: textStyle.copyWith(
          background: pd.BoxDecoration(color: PdfColor.fromHex("#FFC107")),
       )
-      
     ),
     );
     globalStartPage=highlightedWordsLocation.end-startPosition;
@@ -86,28 +86,13 @@ pd.Container wordData(data){
   ),
       ]
     ),
-    
   );
-  }
- 
-  
+  } 
 }
-
 Future genaratePDF(Map data,String paragraph,List<HighlightedRange> highlightedWords,Map highlightWordsData)async{
   print(highlightWordsData);
   final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular-Font.ttf');
   final ttf = pd.Font.ttf(fontData);
-
-  
-  // for(List item in subParagraph){
-  //                           print("para");
-  //                           print(item[0]);
-  //                           for(HighlightedRange word in item[1]){
-  //                             print(word.word);
-  //                           }
-  //                           print(item[2]);
-                            
-  //                        }
   final pdf =pd.Document( theme: pd.ThemeData.withFont(
       base: ttf,
       bold: ttf,
@@ -119,7 +104,7 @@ Future genaratePDF(Map data,String paragraph,List<HighlightedRange> highlightedW
       margin:pd.EdgeInsets.only(left: 50,right: 50,top:50,bottom: 0),
       pageFormat: PdfPageFormat.a4,
       // margin: pd.EdgeInsets.all(20),
-      build: (context) {
+      build: (context){
         log("height a4 : ${PdfPageFormat.a4.height}");
         List<List> subParagraph=getFittingText1(text:paragraph,highlightedWords:highlightedWords,width:PdfPageFormat.a4.width-100);
         List<pd.Widget> widgets = [];
