@@ -24,9 +24,10 @@ class NotesEditor extends StatefulWidget {
 
 class _NotesEditorState extends State<NotesEditor> {
   bool _limitPopupShown = false;
-  ScrollController homePageScrollController=ScrollController();
-   ScrollController noteScrollController=ScrollController();
+  ScrollController homePageScrollController = ScrollController();
+  ScrollController noteScrollController = ScrollController();
   TextEditingController noteController = TextEditingController();
+  final GlobalKey _annotationKey = GlobalKey();
   // int _charCount = 0;
 
   // @override
@@ -57,15 +58,14 @@ class _NotesEditorState extends State<NotesEditor> {
         _limitPopupShown = false;
       }
     });
-    noteScrollController.addListener((){
+    noteScrollController.addListener(() {
       highlightProvider.removeDescriptionPopUp();
       log("scrolled");
     });
-    homePageScrollController.addListener((){
+    homePageScrollController.addListener(() {
       highlightProvider.removeDescriptionPopUp();
       log("scrolled");
     });
-
   }
 
   void _highlightSelection() {
@@ -78,11 +78,11 @@ class _NotesEditorState extends State<NotesEditor> {
     int start = 0;
     int end = 0;
     start = text[selection.start] == " " || isSymbol(text[selection.start])
-        ? start= selection.start + 1
-        : start= selection.start;
+        ? start = selection.start + 1
+        : start = selection.start;
     end = text[selection.end - 1] == " " || isSymbol(text[selection.end - 1])
-        ? end= selection.end - 1
-        : end = selection.end ;
+        ? end = selection.end - 1
+        : end = selection.end;
     if (start > end) {
       log("1");
       return;
@@ -99,13 +99,12 @@ class _NotesEditorState extends State<NotesEditor> {
       log("2");
       return;
     } else {
-      final selectedWord =
-          text.substring(start, end).trim().toLowerCase();
+      final selectedWord = text.substring(start, end).trim().toLowerCase();
 
       if (selectedWord.isEmpty ||
           selectedWord.contains(" ") ||
           containsSymbol(selectedWord)) {
-          log(selectedWord);
+        log(selectedWord);
         log("3");
         return;
       }
@@ -115,14 +114,14 @@ class _NotesEditorState extends State<NotesEditor> {
             "⚠️ '$selectedWord' is not a scientific term and cannot be highlighted.");
         return;
       }
-      final success =
-          highlightProvider.toggleHighlight(selectedWord.toLowerCase(), start, end);
-      if (success==1) {
+      final success = highlightProvider.toggleHighlight(
+          selectedWord.toLowerCase(), start, end);
+      if (success == 1) {
         showCenterPopup(context, "You can highlight up to 10 words only !.");
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(content: Text("You can highlight up to 10 words only.")),
         // );
-      }else if(success==2){
+      } else if (success == 2) {
         showCenterPopup(context, "Selected word is already highlighted !.");
       }
     }
@@ -132,6 +131,61 @@ class _NotesEditorState extends State<NotesEditor> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     final highlightProvider = Provider.of<HighlightProvider>(context);
+
+    Widget buildButtonWithIcon(
+        String label, double w, String iconPath, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: width * 0.03,
+          width: w,
+          // padding: EdgeInsets.symmetric(horizontal: width*0.0056),
+          decoration: BoxDecoration(
+            border: Border.all(color: Color.fromARGB(255, 166, 166, 166)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(iconPath,
+                  height: width * 0.024, width: width * 0.024),
+              SizedBox(width: width * 0.0042),
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600, fontSize: width * 0.014),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildButton(String label, double w, VoidCallback onTap) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+              vertical: width * 0.0041, horizontal: width * 0.0124),
+          height: width * 0.03,
+          width: w,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            border:
+                Border.all(width: 1, color: Color.fromARGB(255, 166, 166, 166)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: width * 0.014,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
         body: Stack(
       children: [
@@ -141,22 +195,23 @@ class _NotesEditorState extends State<NotesEditor> {
             CustomNavbar(),
             Padding(
               padding: EdgeInsets.only(
-                  top: width * 0.038, right: width * 0.09, left: width * 0.09),
+                  top: width * 0.020,
+                  right: width * 0.09,
+                  left: width * 0.09,
+                  bottom: width * 0.020),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(width * 0.017),
-                    // width: width * 0.665,
-                    height: width * 0.057,
+                    padding: EdgeInsets.symmetric(
+                        vertical: width * 0.01, horizontal: width * 0.025),
+                    width: width * 0.665,
+                    height: width * 0.043,
                     decoration: BoxDecoration(
                       color: const Color(0xFFE7F3FF),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Image.asset(
                           "assets/i.png",
@@ -177,7 +232,7 @@ class _NotesEditorState extends State<NotesEditor> {
                                 TextSpan(
                                   text: '‘Annotate’',
                                   style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w700),
+                                      fontWeight: FontWeight.w600),
                                 ),
                                 TextSpan(
                                     text:
@@ -190,112 +245,27 @@ class _NotesEditorState extends State<NotesEditor> {
                     ),
                   ),
                   SizedBox(
-                    height: width * 0.019,
+                    height: width * 0.013,
                   ),
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: (){
-                        //  var data= getFittingText1(text: noteController.text, highlightedWords: highlightProvider.highlightedRanges);
-                        //  for(List item in data){
-                        //     print("para");
-                        //     print(item[0]);
-                        //     for(HighlightedRange word in item[1]){
-                        //       print(word.word);
-                        //     }
-                        //     print(item[2]);
-                            
-                        //  }
-                        // genaratePDF({},noteController.text,highlightProvider.highlightedRanges);
-                        },
-                        child: Container(
-                          height: width * 0.033,
-                          width: width * 0.0861,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              // color: Color.fromARGB(1, 255, 255, 255),
-                              border: Border.all(
-                                width: 1,
-                                color: Color.fromARGB(255, 166, 166, 166),
-                              )),
-                          child: Text('Paste',
-                              style: GoogleFonts.poppins(
-                                  letterSpacing: 0.08,
-                                  fontSize: width * 0.0166,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          _highlightSelection();
-                        },
-                        child: Container(
-                            height: width * 0.033,
-                            width: width * 0.125,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                // color: Color.fromARGB(1, 255, 255, 255),
-                                border: Border.all(
-                                  width: 1,
-                                  color: Color.fromARGB(255, 166, 166, 166),
-                                )),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  "assets/brush-square.png",
-                                  height: width * 0.0305,
-                                  width: width * 0.0305,
-                                ),
-                                SizedBox(
-                                  width: width * 0.0069,
-                                ),
-                                Text('Highlight',
-                                    style: GoogleFonts.poppins(
-                                        letterSpacing: 0.08,
-                                        fontSize: width * 0.0166,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black)),
-                              ],
-                            )),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          highlightProvider.clear();
-                        },
-                        child: Container(
-                          height: width * 0.033,
-                          width: width * 0.1,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              // color: Color.fromARGB(1, 255, 255, 255),
-                              border: Border.all(
-                                width: 1,
-                                color: Color.fromARGB(255, 166, 166, 166),
-                              )),
-                          child: Text('Clear All',
-                              style: GoogleFonts.poppins(
-                                  letterSpacing: 0.08,
-                                  fontSize: width * 0.0166,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black)),
-                        ),
-                      ),
+                      buildButton("Paste", width * 0.0761, () {}),
+                      SizedBox(width: width * 0.014),
+                      buildButtonWithIcon("Highlight", width * 0.125,
+                          "assets/brush-square.png", _highlightSelection),
+                      Spacer(),
+                      buildButton("Clear All", width * 0.1, () {
+                        highlightProvider.clear();
+                      }),
+                      // SizedBox(width: width * 0.0194),
                     ],
                   ),
                   SizedBox(
-                    height: width * 0.02,
+                    height: width * 0.018,
                   ),
                   Container(
-                    height: highlightProvider.isAnnotated ? width * 0.263 / 2 : width * 0.263,
-                    // width: width * 0.805,
-                    padding: EdgeInsets.all(10),
+                    height: width * 0.263,
+                    padding: EdgeInsets.all(width * 0.007),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
@@ -310,7 +280,7 @@ class _NotesEditorState extends State<NotesEditor> {
                       child: ExtendedTextField(
                         scrollController: noteScrollController,
                         autofocus: highlightProvider.editorFocusState,
-                        style: TextStyle(fontSize: 17),
+                        style: TextStyle(fontSize: 15),
                         inputFormatters: [
                           HighlightBlockFormatter(
                               highlightProvider.highlightedRanges, context)
@@ -318,204 +288,145 @@ class _NotesEditorState extends State<NotesEditor> {
                         controller: noteController,
                         expands: true,
                         maxLines: null,
-                        specialTextSpanBuilder:
-                            HighlightSpanBuilder(highlightProvider, context,noteController),
+                        maxLength: 5000,
+                        specialTextSpanBuilder: HighlightSpanBuilder(
+                            highlightProvider, context, noteController),
                         decoration: InputDecoration.collapsed(
                             hintText: "Type and select words to highlight"),
                       ),
                     ),
                   ),
                   SizedBox(
-                    height: width * 0.0194,
+                    height: width * 0.018,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector( 
+                      onTap: () async {
+                        if(highlightProvider.highlightedWords.isNotEmpty){
                           highlightProvider.removeDescriptionPopUp();
-                          if(noteController.text.isNotEmpty){
-                            highlightProvider.setAnnotatedStatus(true);
-                          annotate(context);
-                          }
-                          
-                        },
-                        child: Container(
-                            height: width * 0.033,
-                            width: width * 0.125,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 54, 59, 186),
-                                borderRadius: BorderRadius.circular(8),
-                                // color: Color.fromARGB(1, 255, 255, 255),
-                                border: Border.all(
-                                  width: 1,
-                                  color: Color.fromARGB(255, 166, 166, 166),
-                                )),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  height:  width * 0.033*0.6,
-                                  width: width * 0.033*0.6,
-                                  child: Image.asset("assets/magicpen.png")),
-                                SizedBox(
-                                  width: width * 0.0069,
-                                ),
-                                Text('Annotate',
-                                    style: GoogleFonts.poppins(
-                                        letterSpacing: 0.08,
-                                        fontSize: width * 0.0166,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white)),
-                              ],
+                        if (noteController.text.isNotEmpty) {
+                          highlightProvider.setAnnotatedStatus(true);
+                          await annotate(context);
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final ctx = _annotationKey.currentContext;
+                            if (ctx != null) {
+                              Scrollable.ensureVisible(
+                                ctx,
+                                duration: Duration(milliseconds: 500),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          });
+                        }
+                        }
+                        
+                      },
+                      child: Container(
+                        height: width * 0.034,
+                        width: width * 0.17,
+                        decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 54, 59, 186),
+                            borderRadius: BorderRadius.circular(8),
+                            // color: Color.fromARGB(1, 255, 255, 255),
+                            border: Border.all(
+                              width: 1,
+                              color: Color.fromARGB(255, 166, 166, 166),
                             )),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset("assets/magicpen.png",
+                                height: width * 0.017, width: width * 0.017),
+                            SizedBox(width: width * 0.0042),
+                            Text(
+                              "Annotate",
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: width * 0.014,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
                   ),
                   SizedBox(
-                    height: width * 0.0194,
+                    height: width * 0.018,
                   ),
 
                   //annotate box
                   !highlightProvider.isAnnotated
-                      ? const Text("")
-                      : Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  // margin: EdgeInsets.only(left: 00),
-                                  padding: EdgeInsets.all(20),
-                                  height: width * 0.2638 / 2,
-                                  width: width * 0.82,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        width: 1,
-                                        color:
-                                            Color.fromARGB(255, 166, 166, 166),
-                                      )),
-                                  alignment: Alignment.topLeft,
-                                  child: ListView.builder(
-                                      itemCount: highlightProvider
-                                          .highlightWordsData.keys.length,
-                                      itemBuilder: (context, index) {
-                                        Map highlightWordsData =
-                                            highlightProvider
-                                                .highlightWordsData;
-                                        List keys =
-                                            highlightWordsData.keys.toList();
+                      ? SizedBox()
+                      : Container(
+                          key: _annotationKey,
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                width: 1,
+                                color: Color.fromARGB(255, 166, 166, 166),
+                              )),
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: highlightProvider
+                                  .highlightWordsData.keys.length,
+                              itemBuilder: (context, index) {
+                                Map highlightWordsData =
+                                    highlightProvider.highlightWordsData;
+                                List keys = highlightWordsData.keys.toList();
 
-                                        return Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "${highlightProvider.highlightWordsData[keys[index]]["word"]}",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w900),
-                                            ),
-                                            Text(
-                                                "${highlightProvider.highlightWordsData[keys[index]]["description"]}"),
-                                            Text(
-                                                "origin : ${highlightProvider.highlightWordsData[keys[index]]["origin"]}"),
-                                            Text(
-                                                "prefix : ${highlightProvider.highlightWordsData[keys[index]]["prefix"]}"),
-                                            Text(
-                                                "suffix : ${highlightProvider.highlightWordsData[keys[index]]["suffix"]}"),
-                                            SizedBox(
-                                              height: 20,
-                                            ),
-                                          ],
-                                        );
-                                      }),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: width * 0.0194,
-                            ),
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: (){
-                                     highlightProvider.setAnnotatedStatus(false);
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: width * 0.033 * 0.80,
-                                    width: width * 0.1073,
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                          width: 1,
-                                          color:
-                                              Color.fromARGB(255, 166, 166, 166),
-                                        ),
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          height:width * 0.033 * 0.75 *0.66,
-                                          width: width * 0.033 * 0.75*0.66,
-                                          child: Image.asset("assets/edit.png")),
-                                          SizedBox(width: 10,),
-                                        // Image.asset("assets/edit.png",height: 32,width: 32,),
-                                        Text("Edit Note Again",
-                                            style: GoogleFonts.poppins(
-                                              letterSpacing: 0.08,
-                                              fontSize: width * 0.010,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "${highlightProvider.highlightWordsData[keys[index]]["word"]}",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w900),
                                     ),
-                                  ),
-                                ),
-                                Spacer(),
-                                GestureDetector(
-                                  onTap: () {
-                                     
-                                    if (noteController.text.isNotEmpty) {
-                                     exportNotesPopUp(context,highlightProvider.highlightWordsData,noteController.text);
-                                          
-                                    }
-                                  },
-                                  child: Container(
-                                    height: width * 0.033 * 0.75,
-                                    width: width * 0.0616,
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                          width: 1,
-                                          color: Color.fromARGB(
-                                              255, 166, 166, 166),
-                                        ),
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                      //  SizedBox(
-                                      //     height:width * 0.033 * 0.75 *0.66,
-                                      //     width: width * 0.033 * 0.75*0.66,
-                                      //     child: Image.asset("assets/export.png")),
-                                          SizedBox(width: 10,),
-                                        Text("Export",
-                                            style: GoogleFonts.poppins(
-                                              letterSpacing: 0.08,
-                                              fontSize: width * 0.010,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                      ],
+                                    Text(
+                                        "${highlightProvider.highlightWordsData[keys[index]]["description"]}"),
+                                    Text(
+                                        "origin : ${highlightProvider.highlightWordsData[keys[index]]["origin"]}"),
+                                    Text(
+                                        "prefix : ${highlightProvider.highlightWordsData[keys[index]]["prefix"]}"),
+                                    Text(
+                                        "suffix : ${highlightProvider.highlightWordsData[keys[index]]["suffix"]}"),
+                                    SizedBox(
+                                      height: 20,
                                     ),
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: width * 0.0194,
-                            ),
+                                  ],
+                                );
+                              }),
+                        ),
+
+                  SizedBox(
+                    height: width * 0.021,
+                  ),
+
+                  highlightProvider.highlightWordsData.isEmpty
+                      ? SizedBox()
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            buildButtonWithIcon(
+                                "Edit Note ", width * 0.131, "assets/edit.png",
+                                () {
+                              highlightProvider.setAnnotatedStatus(false);
+                            }),
+                            buildButtonWithIcon(
+                              "Export",
+                              width * 0.13,
+                              "assets/export.png",
+                              () {
+                                if (noteController.text.isNotEmpty) {
+                                  exportNotesPopUp(
+                                      context,
+                                      highlightProvider.highlightWordsData,
+                                      noteController.text);
+                                }
+                              },
+                            )
                           ],
                         ),
 
@@ -554,7 +465,7 @@ class _NotesEditorState extends State<NotesEditor> {
             ),
           ],
         ),
-        highlightProvider.descriptionPopUp??Text("")
+        highlightProvider.descriptionPopUp ?? Text("")
       ],
     ));
   }

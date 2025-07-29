@@ -12,6 +12,7 @@ void showCenterPopup(BuildContext context, String message) {
     context: context,
     builder: (context) => AlertDialog(
       content: Text(message),
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       actions: [
         TextButton(
@@ -171,46 +172,62 @@ void showSuccessPopup(BuildContext context) {
 //   );
 // }
 
-void exportNotesPopUp(BuildContext context, data,String paragraph) {
+void exportNotesPopUp(BuildContext context, data, String paragraph) {
+  double width = MediaQuery.of(context).size.width;
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      contentPadding: EdgeInsets.only(top: 10),
-      content: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.45,
-        width: MediaQuery.of(context).size.width * 0.45,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        height: width * 0.3,
+        width: width * 0.4,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10)
+        ),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                children: [
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-              
-                      },
-                      child: Icon(Icons.arrow_back)),
-                  SizedBox(width: 10),
-                  Text(
-                    "Export Notes",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
+             Padding(
+              padding: EdgeInsets.only(left: width*0.007, top: width*0.009 ),
+               child: Row(
+                  children: [
+                    SizedBox(height: width*0.03, width: width*0.01,),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(Icons.arrow_back_outlined)),
+                        SizedBox(height: width*0.03, width: width*0.01,),
+                       Text(
+                        "Export Notes",
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500, 
+                            fontSize: width * 0.016,
+                            
+                            ),
+                      ),
+                    
+                  ],
+                ),
+             ),
+            
             Divider(),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.only(left: width*0.02 , top: width*0.012),
               child: Text(
-                  "Export your annotated notes as a PDF file, Word document, or shareable link"),
+                  "Export your annotated notes as a PDF file, Word document, or shareable link",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w400,
+                    fontSize: width* 0.016,
+                    color: Colors.grey.shade600,
+                  ),),
             ),
-            Spacer(),
+            SizedBox(height: width* 0.033,),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 GestureDetector(
-                  onTap: ()async {
+                   onTap: ()async {
                     List<HighlightedRange> highlightedWords=context.read<HighlightProvider>().highlightedRanges;
                     Map highlightWordsData=context.read<HighlightProvider>().highlightWordsData;
                    await genaratePDF(data,paragraph,highlightedWords,highlightWordsData);
@@ -219,37 +236,122 @@ void exportNotesPopUp(BuildContext context, data,String paragraph) {
                     // pdfPreviewPopUp(context,data);
                   },
                   child: Container(
-                    height: MediaQuery.of(context).size.height * 0.4 / 3,
-                    width: MediaQuery.of(context).size.height * 0.4 / 3,
+                    height: width*0.11,
+                    width: width*0.1,
+                    padding: EdgeInsets.symmetric(vertical: width*0.007, horizontal: width*0.01 ),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
+                      border: Border.all(color: Colors.grey , width: 1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.picture_as_pdf,
-                          color: Colors.blue,
+                        Container(
+                          height: width*0.06,
+                          child: Image.asset("assets/pdf.png",
+                          fit: BoxFit.cover,),
                         ),
                         SizedBox(
-                          height: 5,
+                          height: 4,
                         ),
-                        Text("PDF")
+                        Text("PDF",
+                        style: GoogleFonts.poppins(
+                          fontSize: width*0.016,
+                          fontWeight: FontWeight.w400,
+
+                        ),),
+                        
                       ],
                     ),
                   ),
                 ),
+              
+               GestureDetector(
+                  onTap: () async {
+                    // await genaratePDF(data);
+                    Navigator.pop(context);
+                    showSuccessPopup(context);
+                   
+                  },
+                  child: Container(
+                    height: width*0.11,
+                    width: width*0.1,
+                    padding: EdgeInsets.symmetric(vertical: width*0.007, horizontal: width*0.01 ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey , width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: width*0.06,
+                          child: Image.asset("assets/word.png",
+                          fit: BoxFit.cover,),
+                        ),
+                        SizedBox(
+                          height: 4,
+                        ),
+                        Text("Word",
+                        style: GoogleFonts.poppins(
+                          fontSize: width*0.016,
+                          fontWeight: FontWeight.w400,
+
+                        ),),
+                        
+                      ],
+                    ),
+                  ),
+                ),
+              
+               GestureDetector(
+                  onTap: () async {
+                    // await genaratePDF(data);
+                    Navigator.pop(context);
+                    showSuccessPopup(context);
+                   
+                  },
+                  child: Container(
+                    height: width*0.11,
+                    width: width*0.1,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey , width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: width*0.06,
+                          child: Image.asset("assets/share_link.png",
+                          fit: BoxFit.cover,),
+                        ),
+                        SizedBox(
+                          height: 4,
+                        ),
+                        Text("Share Link",
+                        style: GoogleFonts.poppins(
+                          fontSize: width*0.016,
+                          fontWeight: FontWeight.w400,
+
+                        ),),
+                        
+                      ],
+                    ),
+                  ),
+                ),
+              
               ],
             ),
-            Spacer(),
+            
+            Spacer()
           ],
         ),
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   );
 }
+
 
 // void pdfPreviewPopUp(BuildContext context, data) {
 //   print(data);

@@ -45,6 +45,9 @@ flutter:
     - assets/magicpen.png
     - assets/export_icon.png
     - assets/export.png
+    - assets/pdf.png
+    - assets/share_link.png
+    - assets/word.png
   fonts:
     - family: NotoSans
       fonts:

@@ -89,7 +89,7 @@ Future<Map> getRequestCount(String username) async {
   return data;
 }
 
-void annotate(BuildContext context) async {
+Future<void> annotate(BuildContext context) async {
   //setting request limit
   int requestCount=300;
   int requestCountHour=100;
