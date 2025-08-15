@@ -1,3 +1,4 @@
+import 'package:etymology/etymo_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -16,8 +17,10 @@ class CustomNavbar extends StatelessWidget {
           // Logo & Title
           Row(
             children: [
-              Image.asset("assets/Logo.png",
-              height: 40,)
+              Image.asset(
+                "assets/Logo.png",
+                height: 40,
+              )
             ],
           ),
 
@@ -29,16 +32,27 @@ class CustomNavbar extends StatelessWidget {
               _navItem("Contact"),
               _navItem("Help"),
               const SizedBox(width: 12),
-              Icon(Icons.account_circle_outlined, color: Colors.white),
-              const SizedBox(width: 4),
-              Text(
-                "Guest",
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
+              GestureDetector(
+                onTap:() {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MedicalTermsEtymoPage()));
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.account_circle_outlined, color: Colors.white,size: 30,),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Admin",
+                      style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 30,)
+              const SizedBox(
+                width: 30,
+              )
             ],
           ),
         ],

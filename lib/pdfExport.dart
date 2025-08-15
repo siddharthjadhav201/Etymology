@@ -9,6 +9,7 @@ import "package:etymology/string_functions.dart";
 import "package:etymology/try.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:google_fonts/google_fonts.dart";
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pd;
 import "package:universal_html/html.dart" as html;
@@ -17,9 +18,11 @@ import "package:universal_html/html.dart" as html;
 List<pd.InlineSpan> paragraphColumn(item,pd.Font ttf){
   pd.TextStyle textStyle=pd.TextStyle(
     font:ttf,
+    // font:pd.Font(),
     fontSize: 12,
     wordSpacing: 1.5,
     lineSpacing: 2,
+    letterSpacing: 0,
     fontWeight: pd.FontWeight.normal
   );
   try{
@@ -89,23 +92,24 @@ pd.Container wordData(data){
   );
   } 
 }
-Future genaratePDF(Map data,String paragraph,List<HighlightedRange> highlightedWords,Map highlightWordsData)async{
+Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map highlightWordsData)async{
   print(highlightWordsData);
   final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular-Font.ttf');
   final ttf = pd.Font.ttf(fontData);
-  final pdf =pd.Document( theme: pd.ThemeData.withFont(
-      base: ttf,
-      bold: ttf,
-      italic: ttf,
-      boldItalic: ttf,
-    ),);
+  final pdf =pd.Document();
+    // theme: pd.ThemeData.withFont(
+    //   base: ttf,
+    //   bold: ttf,
+    //   italic: ttf,
+    //   boldItalic: ttf,
+    // ),);
     pdf.addPage(
     pd.MultiPage(
       margin:pd.EdgeInsets.only(left: 50,right: 50,top:50,bottom: 0),
       pageFormat: PdfPageFormat.a4,
       // margin: pd.EdgeInsets.all(20),
       build: (context){
-        log("height a4 : ${PdfPageFormat.a4.height}");
+        log("width a4 : ${PdfPageFormat.a4.width-100}");
         List<List> subParagraph=getFittingText1(text:paragraph,highlightedWords:highlightedWords,width:PdfPageFormat.a4.width-100);
         List<pd.Widget> widgets = [];
         for(List item in subParagraph){
@@ -114,12 +118,12 @@ Future genaratePDF(Map data,String paragraph,List<HighlightedRange> highlightedW
               crossAxisAlignment: pd.CrossAxisAlignment.start,
               children: [
                  pd.Container(
-                  decoration: pd.BoxDecoration(
-                    // border: pd.Border.all()
-                    ),
-                  alignment: pd.Alignment.topLeft,
+                  // decoration: pd.BoxDecoration(
+                  //   border: pd.Border.all()
+                  //   ),
+                  // alignment: pd.Alignment.topLeft,
               height: item[2],
-              width: PdfPageFormat.a4.width-100,
+              width: PdfPageFormat.a4.width-100.toInt(),
               child: pd.RichText(text: pd.TextSpan(
                 children: paragraphColumn(item,ttf)
               )),

@@ -1,4 +1,5 @@
 
+import 'package:etymology/etymo_page.dart';
 import 'package:etymology/providers.dart';
 import 'package:etymology/try.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       // home:Try(),
       home:NotesEditor(),
+      // home:MedicalTermsEtymoPage(),
       // home: LoginScreen(),
       //Secondpage(),
       //NotesEditor(),

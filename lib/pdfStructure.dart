@@ -59,11 +59,13 @@ int getCharSizeForContainer(double height, String text, double maxWidth) {
   try {
     final TextStyle style = TextStyle(
   fontSize: 12,
-  fontWeight: FontWeight.normal, // equivalent to pw.FontWeight.normal
+  letterSpacing: -0.02,
+  // fontWeight: FontWeight.w900, // equivalent to pw.FontWeight.normal
   wordSpacing: 1.5,
-  height: 1.55,
-  fontFamily: "NotoSans" // approximated line spacing to line height ratio // required if used outside Material widgets
-);
+  height: 1.3,
+  fontFamily: "NotoSans",
+  fontWeight: FontWeight.normal// approximated line spacing to line height ratio // required if used outside Material widgets
+); 
     int start = 0;
     int end = text.length;
     int currentResult = 0;

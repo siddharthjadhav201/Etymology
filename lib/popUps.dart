@@ -230,7 +230,7 @@ void exportNotesPopUp(BuildContext context, data, String paragraph) {
                    onTap: ()async {
                     List<HighlightedRange> highlightedWords=context.read<HighlightProvider>().highlightedRanges;
                     Map highlightWordsData=context.read<HighlightProvider>().highlightWordsData;
-                   await genaratePDF(data,paragraph,highlightedWords,highlightWordsData);
+                   await genaratePDF(paragraph,highlightedWords,highlightWordsData);
                    Navigator.pop(context);
                     showSuccessPopup(context);
                     // pdfPreviewPopUp(context,data);

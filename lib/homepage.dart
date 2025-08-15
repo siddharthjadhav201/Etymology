@@ -6,6 +6,7 @@ import "package:etymology/highlight_block_formatter.dart";
 import "package:etymology/navbar.dart";
 import "package:etymology/pdfStructure.dart";
 import "package:etymology/popUps.dart";
+import "package:etymology/services/api_calls.dart";
 import "package:etymology/services/remote_services.dart";
 import "package:etymology/string_functions.dart";
 import "package:flutter/material.dart";
@@ -249,7 +250,10 @@ class _NotesEditorState extends State<NotesEditor> {
                   ),
                   Row(
                     children: [
-                      buildButton("Paste", width * 0.0761, () {}),
+                      buildButton("Paste", width * 0.0761, () async{
+                        // genaratePDF(noteController.text,highlightProvider.highlightedRanges,{});
+                         await fetchMedicalTerms(highlightProvider);
+                      }),
                       SizedBox(width: width * 0.014),
                       buildButtonWithIcon("Highlight", width * 0.125,
                           "assets/brush-square.png", _highlightSelection),
@@ -307,7 +311,8 @@ class _NotesEditorState extends State<NotesEditor> {
                           highlightProvider.removeDescriptionPopUp();
                         if (noteController.text.isNotEmpty) {
                           highlightProvider.setAnnotatedStatus(true);
-                          await annotate(context);
+                          // await annotate(context);
+                          await fetchMedicalTerms(highlightProvider);
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             final ctx = _annotationKey.currentContext;
                             if (ctx != null) {
@@ -385,13 +390,15 @@ class _NotesEditorState extends State<NotesEditor> {
                                           fontWeight: FontWeight.w900),
                                     ),
                                     Text(
-                                        "${highlightProvider.highlightWordsData[keys[index]]["description"]}"),
-                                    Text(
-                                        "origin : ${highlightProvider.highlightWordsData[keys[index]]["origin"]}"),
-                                    Text(
-                                        "prefix : ${highlightProvider.highlightWordsData[keys[index]]["prefix"]}"),
-                                    Text(
-                                        "suffix : ${highlightProvider.highlightWordsData[keys[index]]["suffix"]}"),
+                                        "${highlightProvider.highlightWordsData[keys[index]]["description"]}"
+                                        ),
+                                    // Text(
+                                    //     "origin : ${highlightProvider.highlightWordsData[keys[index]]["origin"]}"),
+                                    // Text(
+                                    //     "prefix : ${highlightProvider.highlightWordsData[keys[index]]["prefix"]}"),
+                                    // Text(
+                                    //     "suffix : ${highlightProvider.highlightWordsData[keys[index]]["suffix"]}"),
+
                                     SizedBox(
                                       height: 20,
                                     ),
