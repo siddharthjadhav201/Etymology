@@ -119,18 +119,6 @@ class _NotesEditorState extends State<NotesEditor> {
       }
     }
   }
-  // void updateLocations() {
-  //   HighlightProvider provider = context.read<HighlightProvider>();
-  //   int diff = noteController.text.length - provider.prevTextLength;
-  //   provider.highlightedRanges =
-  //       provider.highlightedRanges.map((loc) {
-  //     if (loc[0] > previousSelection!.start) {
-  //       return [loc[0] + diff, loc[1] + diff];
-  //     }
-  //     return loc;
-  //   }).toList();
-  //   provider.setPrevTextLength(noteController.text.length);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -259,6 +247,7 @@ class _NotesEditorState extends State<NotesEditor> {
                     }),
                     // SizedBox(width: width * 0.0194),
                   ],
+                
                 ),
                 SizedBox(height: width * 0.018),
 
@@ -356,6 +345,7 @@ class _NotesEditorState extends State<NotesEditor> {
                           ),
                         ],
                       ),
+                    
                     ),
                   ),
                 ),
@@ -414,7 +404,9 @@ class _NotesEditorState extends State<NotesEditor> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           buildButtonWithIcon("Edit Note ", width * 0.131,
-                              "assets/edit.png", () {}),
+                              "assets/edit.png", () {
+                                highlightProvider.setAnnotatedStatus(false);
+                              }),
                           buildButtonWithIcon(
                               "Export", width * 0.13, "assets/export.png", () {
                             if (highlightProvider
@@ -422,7 +414,11 @@ class _NotesEditorState extends State<NotesEditor> {
                               exportNotesPopUp(context,
                                   highlightProvider.highlightWordsData);
                             }
-                          }),
+                          }
+                          
+                          //sanket export
+                         
+                          ),
                         ],
                       ),
               ],

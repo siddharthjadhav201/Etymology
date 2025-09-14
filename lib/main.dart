@@ -2,6 +2,7 @@ import 'package:etymology/providers.dart';
 import 'package:flutter/material.dart';
 import "package:provider/provider.dart";
 import 'non_scientific_term_manager.dart';
+import 'human_in_loop.dart';
 
 import 'try.dart';
 void main() {
@@ -22,6 +23,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: //NonScientificTermManager()
       NotesEditor(),
+      //MedicalTermsEtymoPage(),
     );
   }
 }
