@@ -1,4 +1,6 @@
 
+import 'package:etymology/human_in_loop.dart';
+import 'package:etymology/navbar.dart';
 import 'package:etymology/popUps.dart';
 import 'package:etymology/providers.dart';
 import 'package:etymology/register_page.dart';
@@ -15,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool isLoading=false;
   var isOpen = true;
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -32,14 +35,22 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Container(
                 padding: EdgeInsets.only(top:50),
-                height: 400,
+                height: 300,
                 width: 500,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 1),
+                  // border: Border.all(color: Colors.black, width: 1),
                   borderRadius: const BorderRadius.all( Radius.circular(25)),
-                  color: const Color.fromRGBO(255, 255, 255, 1),
+                  color: const Color.fromARGB(255,245, 239, 230), //rgb(245, 239, 230)
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(5, 5),
+                      blurRadius: 4,
+                      color: Colors.grey
+                    )
+                  ]
+                  
                 ),
-                child: ListView(
+                child: Column(
                   children: [
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -51,10 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: InputDecoration(
                               hintText: "Enter your username",
                               labelText: "Username",
-                              labelStyle: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
+                              // labelStyle: const TextStyle(
+                              //   fontSize: 20,
+                              //   color: Colors.black,
+                              // ),
                               enabledBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.blue),
                                 borderRadius: BorderRadius.only(
@@ -138,18 +149,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         GestureDetector(
                           onTap: () async {
+                            LoginProvider loginProvider=context.read<LoginProvider>();
                             if(usernameController.text.isNotEmpty && passwordController.text.isNotEmpty){
+                              loginProvider.setLoginLoader(true);
                               int respose=await loginUser(usernameController.text,passwordController.text);
                               if(respose==0){
+                                loginProvider.setLoginLoader(false);
                                 showCenterPopup(context, "⚠️ User Not Found");
                               }else if(respose==1){
+                                loginProvider.setLoginLoader(false);
                                 showCenterPopup(context, "⚠️ Incorrect Password");
                               }else if(respose==2){
-                               
+                               loginProvider.setLoginLoader(false);
                                  context.read<LoginProvider>().setUsername(usernameController.text);
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: 
-                                (context)=>NotesEditor()));
+                                (context)=>MedicalTermsEtymoPage()));
                               }else{
+                                loginProvider.setLoginLoader(false);
                                 showCenterPopup(context, "⚠️ Network Error");
                               }
                             }
@@ -162,30 +178,36 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(20),
                               color: const Color.fromARGB(255, 0, 166, 227),
                             ),
-                            child: const Text(
+                            child: context.watch<LoginProvider>().loginLoader ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(color: Colors.white,)) :const Text(
                               "Login",
                               style: TextStyle(
                                   color: Color.fromARGB(255, 243, 240, 240),
-                                  fontSize: 20),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  ),
+                                  
                             ),
                           ),
                         ),
               
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=> RegisterScreen()));
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 20),
-                            child: const Text(
-                              "New User ? Register",
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                            ),
-                          ),
-                        )
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=> RegisterScreen()));
+                        //   },
+                        //   child: Container(
+                        //     margin: const EdgeInsets.only(top: 20),
+                        //     child: const Text(
+                        //       "New User ? Register",
+                        //       style: TextStyle(
+                        //           fontSize: 15,
+                        //           fontWeight: FontWeight.bold,
+                        //           color: Colors.black),
+                        //     ),
+                        //   ),
+                        // )
                       ],
                     )
                   ],

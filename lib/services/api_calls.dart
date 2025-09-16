@@ -7,7 +7,9 @@ import 'dart:convert';
 
 Future fetchMedicalTerms(HighlightProvider highlightProvider) async{  
   List highlightedWords=highlightProvider.highlightedWords;
-  final uri=Uri.https('2ad9d3bc0a8a.ngrok-free.app', '/get_word_data/',{"highlightedWords":highlightedWords});
+  // final uri=Uri.https('2ad9d3bc0a8a.ngrok-free.app', '/get_word_data/',{"highlightedWords":highlightedWords});
+    final uri=Uri.https('etymo-5cpb.onrender.com', '/get_word_data/',{"highlightedWords":highlightedWords});
+
   // final uri=Uri.https('99f4d3282f39.ngrok-free.app', '/check_connection/');
   var response= await http.post(uri, headers: {
       "ngrok-skip-browser-warning": "true", // This skips the warning
@@ -16,8 +18,9 @@ Future fetchMedicalTerms(HighlightProvider highlightProvider) async{
   Map responseData=jsonDecode(response.body);
   List datalist=responseData['results'];
    Map data = Map.fromEntries(datalist.map((item){
-  return MapEntry(item[0].toLowerCase(), {'word':item[0],'description':item[1]});},));
+  return MapEntry(item[1].toLowerCase(), {'medical_term':item[1],'meaning':item[2]});},));
   highlightProvider.setHighlightWordsData(data);
+  print(data);
 }
 
 

@@ -1,5 +1,6 @@
 
-import 'package:etymology/etymo_page.dart';
+import 'package:etymology/human_in_loop.dart';
+import 'package:etymology/login_page.dart';
 import 'package:etymology/providers.dart';
 import 'package:etymology/try.dart';
 import 'package:flutter/material.dart';

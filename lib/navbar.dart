@@ -1,4 +1,5 @@
-import 'package:etymology/etymo_page.dart';
+import 'package:etymology/human_in_loop.dart';
+import 'package:etymology/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -34,7 +35,7 @@ class CustomNavbar extends StatelessWidget {
               const SizedBox(width: 12),
               GestureDetector(
                 onTap:() {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MedicalTermsEtymoPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
                 },
                 child: Row(
                   children: [

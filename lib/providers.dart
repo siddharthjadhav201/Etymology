@@ -6,8 +6,13 @@ import 'package:flutter/material.dart';
 
 class LoginProvider extends ChangeNotifier{
   String username="sanket855";
+  bool loginLoader=false;
   void setUsername(String newUsername){
     username=newUsername;
+    notifyListeners();
+  }
+  void setLoginLoader(bool value){
+    loginLoader=value;
     notifyListeners();
   }
 }
@@ -58,7 +63,7 @@ removeDescriptionPopUp(){
                     // height: 18,),
                     Expanded(
                       child: Text(
-                        info['word'] ?? '',
+                        info['medical_term'] ?? '',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -71,7 +76,7 @@ removeDescriptionPopUp(){
           
                 // Description (Term_Des)
                 Text(
-                  info['description'] ?? '',
+                  info['meaning'].substring(0,110)+'...' ?? '',
                   style: TextStyle(fontSize: 10),
                 ),
           

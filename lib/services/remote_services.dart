@@ -96,19 +96,20 @@ Future<void> annotate(BuildContext context) async {
   var supabase = Supabase.instance.client;
   List words = context.read<HighlightProvider>().highlightedWords;
   String username = context.read<LoginProvider>().username;
-  Map count = await getRequestCount(username);
+  // Map count = await getRequestCount(username);
 
-  if(count["requestCount"]>requestCount){
+
+    if(false){  //count["requestCount"]>requestCount
     showCenterPopup(context,"⚠️ You have reached your request limit for the hour.");
-  } else if(count["requestCountHour"]>requestCountHour){
+    } else if(false){ //count["requestCountHour"]>requestCountHour
     showCenterPopup(context,"⚠️ You have reached your request limit for the hour. Please try again later.");
   }else{
-    await supabase.from("request").insert({
-      "username": username,
-      "words": words,
-      "wordcount": words.length,
-      "requestnumber":count["requestCount"]+1,
-    });
+    // await supabase.from("request").insert({
+    //   "username": username,
+    //   "words": words,
+    //   "wordcount": words.length,
+    //   "requestnumber":count["requestCount"]+1,
+    // });
 
     log("searching for words");
    Map data=await getWordData(words);
@@ -128,23 +129,23 @@ Future<Map> getWordData(List words)async{
 
 Future<List> getDataFromDatabase(List words)async{
   var supabase = Supabase.instance.client;
-  final filter = words.map((word) => 'word.ilike.$word').join(',');
+  final filter = words.map((word) => 'medical_term.ilike.$word').join(',');
   try{
     final dataFromDatabase = await supabase
-        .from('medical_terms')
-        .select("word,description,origin,prefix,suffix,definition")
-        .or(filter);
+        .from('tbl_medical_terms')
+        // .select("word,description,origin,prefix,suffix,definition")
+        .select('medical_term,meaning').or(filter);
         //  print(dataFromDatabase);
   Map wordData={};
   for(var item in dataFromDatabase){
-    wordData.addAll({item["word"].toLowerCase():item});
+    wordData.addAll({item["medical_term"].toLowerCase():item});
   }
   List wordNotInDatabase = words.where((word) =>!wordData.keys.contains(word) ).toList();
   log("words not in database $wordNotInDatabase");
   print(wordData);
   return [wordData,wordNotInDatabase];
   }catch(e){
-    log("error getDataFromDatabase");
+    log("error getDataFromDatabase $e");
     return [{},[]];
   }
 
