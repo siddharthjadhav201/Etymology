@@ -23,6 +23,8 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
   int totalPages = 1;
   List<Map<String, dynamic>> terms = [];
   bool isLoading = false;
+  late ScrollController _scrollController;
+  final List<GlobalKey> _itemKeys = [];
 
   Map<String, dynamic>? selectedTerm;
   final TextEditingController meaningController = TextEditingController();
@@ -36,12 +38,18 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
   void initState() {
     super.initState();
     fetchWords();
+    _scrollController = ScrollController();
   }
 
   //  FETCH PAGINATED TERMS
   Future<void> fetchWords() async {
     if (selectedLetter.isEmpty) return;
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      selectedTermIndex = null; // reset selection on fetch
+      selectedTerm = null;
+      meaningController.clear();
+    });
 
     try {
       final responseWithCount = await supabase
@@ -57,6 +65,9 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
           .range((currentPage - 1) * 50, (currentPage - 1) * 50 + 50);
       setState(() {
         terms = dataForChar;
+        _itemKeys
+          ..clear()
+          ..addAll(List.generate(terms.length, (_) => GlobalKey()));
         totalPages = responseWithCount.count % 50 == 0
             ? responseWithCount.count ~/ 50
             : responseWithCount.count ~/ 50 + 1;
@@ -73,23 +84,23 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
     try {
       final dataForChar = await supabase
           .from('tbl_non_scientefic_terms')
-          .insert({'medical_term': term,'meaning': meaning});
+          .insert({'medical_term': term, 'meaning': meaning});
       final response = await supabase
           .from('tbl_medical_terms')
           .delete()
           .eq('medical_term', term);
 
-        setState(() {
-          terms.removeWhere((t) => t['medical_term'] == term);
-          if (selectedTerm != null && selectedTerm!['medical_term'] == term) {
-            selectedTerm = null;
-            meaningController.clear();
-          }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Transferred $term')),
-        );
-        await fetchWords();
+      setState(() {
+        terms.removeWhere((t) => t['medical_term'] == term);
+        if (selectedTerm != null && selectedTerm!['medical_term'] == term) {
+          selectedTerm = null;
+          meaningController.clear();
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Transferred $term')),
+      );
+      await fetchWords();
     } catch (e) {
       debugPrint('transferTerm error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -164,37 +175,74 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
 
   // ---------- UPDATE MEANING ----------
 
-  Future<void> updateMeaning(ef,id) async {
-    if (meaningController.text.isEmpty) {
-      return;
-    }
-    try {
-      log('${terms[id]}');
-      var res = await supabase
-          .from('tbl_medical_terms')
-          .update({'meaning': meaningController.text, 'term_edited': true}).eq(
-              'medical_term', terms[id]['medical_term']);
-
-      setState(() {
-        // updatedIds.add(id);
-        terms[id]['meaning'] = meaningController.text;
-        terms[id]['term_edited'] = true;
-      });
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Updated successfully')));
-
-      // Auto-refresh behaviour: if enabled, re-fetch list so paging/ordering is consistent
-      if (autoRefreshOnSave) {
-        await fetchWords();
-      }
-    } catch (e) {
-      debugPrint('updateMeaning -> error: $e');
-      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Update error')));
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Update failed')));
-    }
+  Future<void> updateMeaning(String term, int index) async {
+  if (meaningController.text.isEmpty) {
+    return;
   }
+  try {
+    await supabase
+        .from('tbl_medical_terms')
+        .update({'meaning': meaningController.text, 'term_edited': true})
+        .eq('medical_term', term);
+
+    // keep a copy of the updated term
+    final updatedTerm = term;
+
+    setState(() {
+      terms[index]['meaning'] = meaningController.text;
+      terms[index]['term_edited'] = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Updated successfully')),
+    );
+
+    // if auto-refresh is enabled, reload the list
+    if (autoRefreshOnSave) {
+      await fetchWords();
+
+      // ✅ after fetch, restore selection
+      final restoredIndex =
+          terms.indexWhere((t) => t['medical_term'] == updatedTerm);
+
+      if (restoredIndex != -1) {
+        setState(() {
+          selectedTermIndex = restoredIndex;
+          meaningController.text = terms[restoredIndex]['meaning'] ?? '';
+        });
+
+        // scroll to it
+         WidgetsBinding.instance.addPostFrameCallback((_) {
+          final ctx = _itemKeys[restoredIndex].currentContext;
+          if (ctx != null) {
+            Scrollable.ensureVisible(
+              ctx,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+              alignment: 0.3,
+            );
+          } else {
+            // fallback: scroll manually using controller
+            final offset = (restoredIndex * 54.0).clamp(
+              0.0,
+              _scrollController.position.maxScrollExtent,
+            );
+            _scrollController.animateTo(
+              offset,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
+    }
+  } catch (e) {
+    debugPrint('updateMeaning -> error: $e');
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Update failed')));
+  }
+}
+
 
   // ---------- UI Helpers ----------
   Widget _letterButtons() {
@@ -239,6 +287,7 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
     return RefreshIndicator(
       onRefresh: fetchWords,
       child: ListView.builder(
+        controller: _scrollController,
         itemCount: terms.length,
         itemBuilder: (context, index) {
           final term = terms[index];
@@ -246,12 +295,15 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
           final isSelected = selectedTermIndex == index;
 
           return Container(
+            key: _itemKeys[index],
             color: isSelected ? Colors.green.shade100 : null,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ListTile(
-                  title: Text(term['medical_term'][0].toUpperCase()+term['medical_term'].substring(1).toLowerCase() ?? ''),
+                  title: Text(term['medical_term'][0].toUpperCase() +
+                          term['medical_term'].substring(1).toLowerCase() ??
+                      ''),
                   subtitle: edited ? const Text('Refined') : null,
                   onTap: () {
                     setState(() {
@@ -265,7 +317,7 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
                       // ✅ Checkbox instead of green background
                       Checkbox(
                         value: edited,
-                        onChanged: (_){},
+                        onChanged: (_) {},
                         activeColor: Colors.green.shade400,
                         checkColor: Colors.white,
                       ),
@@ -292,22 +344,68 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
                               ],
                             ),
                           );
-                          if (confirm == true) {
-                            await transferTerm(term['medical_term'],term['meaning']);
 
-                            // ✅ Auto-open next word
-                            if (index  < terms.length) {
+                          if (confirm == true) {
+                            await transferTerm(
+                                term['medical_term'], term['meaning']);
+
+                            if (index < terms.length - 1) {
                               setState(() {
-                                selectedTermIndex = index;
+                                selectedTermIndex =
+                                    index; // ✅ move to NEXT word
                                 meaningController.text =
                                     terms[index]['meaning'] ?? '';
+                              });
+
+                              // auto-scroll to next term
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                final context =
+                                    _itemKeys[index + 1].currentContext;
+                                if (context != null) {
+                                  Scrollable.ensureVisible(
+                                    context,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
                               });
                             } else {
                               setState(() {
                                 selectedTermIndex = null; // no next word
                               });
                             }
+
+                            // 🔹 Step 4: scroll to the next word if it exists
+                            if (index < terms.length) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _scrollController.animateTo(
+                                  index *
+                                      52.0, // adjust tile height if different
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              });
+                            }
                           }
+
+                          // if (confirm == true) {
+                          //   await transferTerm(
+                          //       term['medical_term'], term['meaning']);
+
+                          //   // ✅ Auto-open next word
+                          //   if (index < terms.length ) {
+                          //     setState(() {
+                          //       terms.removeAt(index);
+                          //       selectedTermIndex = index;
+                          //       meaningController.text =
+                          //           terms[index]['meaning'] ?? '';
+                          //     });
+                          //   } else {
+                          //     setState(() {
+                          //       selectedTermIndex = null;
+                          //     });
+                          //   }
+                          // }
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -354,13 +452,14 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
                         ElevatedButton(
                           onPressed: () async {
                             final updatedMeaning = meaningController.text;
-                            await updateMeaning(
-                                term['medical_term'],index);
+                            await updateMeaning(term['medical_term'], index);
 
                             setState(() {
                               terms[index]['meaning'] = updatedMeaning;
                               terms[index]['term_edited'] = true;
                             });
+
+                            
                           },
                           style: ElevatedButton.styleFrom(
                             elevation: 6, // shadow depth
@@ -568,6 +667,7 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
     searchController.dispose();
     addTermController.dispose();
     addMeaningController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -577,11 +677,17 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: Icon(Icons.navigate_before,color: Colors.white,)),
-        title: const Text('Refine Medical Terms Description',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w900),),
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.navigate_before,
+              color: Colors.white,
+            )),
+        title: const Text(
+          'Refine Medical Terms Description',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+        ),
         // actions: [
         //   Row(
         //     children: [

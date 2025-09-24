@@ -1,4 +1,3 @@
-
 import 'package:etymology/human_in_loop.dart';
 import 'package:etymology/navbar.dart';
 import 'package:etymology/popUps.dart';
@@ -9,6 +8,13 @@ import 'package:etymology/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<void> saveLoginSession(String username) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('username', username);
+  await prefs.setInt('loginTime', DateTime.now().millisecondsSinceEpoch);
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,14 +23,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool isLoading=false;
+  bool isLoading = false;
   var isOpen = true;
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: const Color.fromARGB(143, 99, 150, 205),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -34,22 +40,19 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.only(top:50),
+                padding: EdgeInsets.only(top: 50),
                 height: 300,
-                width: 500,
+                width: 600,
                 decoration: BoxDecoration(
-                  // border: Border.all(color: Colors.black, width: 1),
-                  borderRadius: const BorderRadius.all( Radius.circular(25)),
-                  color: const Color.fromARGB(255,245, 239, 230), //rgb(245, 239, 230)
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(5, 5),
-                      blurRadius: 4,
-                      color: Colors.grey
-                    )
-                  ]
-                  
-                ),
+                    // border: Border.all(color: Colors.black, width: 1),
+                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                    color: Colors.white, //rgb(245, 239, 230)
+                    boxShadow: [
+                      BoxShadow(
+                          offset: Offset(5, 5),
+                          blurRadius: 4,
+                          color: Colors.grey)
+                    ]),
                 child: Column(
                   children: [
                     Column(
@@ -67,12 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               //   color: Colors.black,
                               // ),
                               enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue),
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(25),
-                                    bottomRight:
-                                        Radius.circular(25)), // Green border
-                              ),
+                                  borderSide: BorderSide(color: Colors.blue),
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(10)) // Green border
+                                  ),
                               focusedBorder: const OutlineInputBorder(
                                 borderSide:
                                     BorderSide(color: Colors.green, width: 2.0),
@@ -149,22 +150,38 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         GestureDetector(
                           onTap: () async {
-                            LoginProvider loginProvider=context.read<LoginProvider>();
-                            if(usernameController.text.isNotEmpty && passwordController.text.isNotEmpty){
+                            LoginProvider loginProvider =
+                                context.read<LoginProvider>();
+                            if (usernameController.text.isNotEmpty &&
+                                passwordController.text.isNotEmpty) {
                               loginProvider.setLoginLoader(true);
-                              int respose=await loginUser(usernameController.text,passwordController.text);
-                              if(respose==0){
+                              int respose = await loginUser(
+                                  usernameController.text,
+                                  passwordController.text);
+                              if (respose == 0) {
                                 loginProvider.setLoginLoader(false);
                                 showCenterPopup(context, "⚠️ User Not Found");
-                              }else if(respose==1){
+                              } else if (respose == 1) {
                                 loginProvider.setLoginLoader(false);
-                                showCenterPopup(context, "⚠️ Incorrect Password");
-                              }else if(respose==2){
-                               loginProvider.setLoginLoader(false);
-                                 context.read<LoginProvider>().setUsername(usernameController.text);
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: 
-                                (context)=>MedicalTermsEtymoPage()));
-                              }else{
+                                showCenterPopup(
+                                    context, "⚠️ Incorrect Password");
+                              } else if (respose == 2) {
+                                loginProvider.setLoginLoader(false);
+                                context
+                                    .read<LoginProvider>()
+                                    .setUsername(usernameController.text);
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setString(
+                                    'username', usernameController.text);
+                                await prefs.setInt('loginTime',
+                                    DateTime.now().millisecondsSinceEpoch);
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            MedicalTermsEtymoPage()));
+                              } else {
                                 loginProvider.setLoginLoader(false);
                                 showCenterPopup(context, "⚠️ Network Error");
                               }
@@ -178,21 +195,24 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(20),
                               color: const Color.fromARGB(255, 0, 166, 227),
                             ),
-                            child: context.watch<LoginProvider>().loginLoader ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(color: Colors.white,)) :const Text(
-                              "Login",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 243, 240, 240),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                            child: context.watch<LoginProvider>().loginLoader
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                    ))
+                                : const Text(
+                                    "Login",
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 243, 240, 240),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  
-                            ),
                           ),
                         ),
-              
+
                         // GestureDetector(
                         //   onTap: () {
                         //     Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=> RegisterScreen()));
