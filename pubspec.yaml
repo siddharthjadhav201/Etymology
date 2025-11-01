@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.6
+  shared_preferences: ^2.2.2
   provider: ^6.1.5
   google_fonts: ^6.1.0
   path_provider: ^2.0.15
@@ -17,6 +19,13 @@ dependencies:
   extended_text_field: ^16.0.2
   http: ^1.4.0
   flutter_screenutil: ^5.6.0
+  supabase_flutter: ^2.9.1
+  flutter_svg: ^2.2.0
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  open_file: ^3.5.10
+  html: ^0.15.6
+  universal_html: ^2.2.4
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +40,28 @@ flutter:
     - assets/magicpen.png
     - assets/Logo.png
     - assets/MultipleEtymoSearch.json
+    - assets/Svg/
+    - assets/fonts/NotoSans-Regular-Font.ttf
+    - assets/edit.png
+    - assets/magicpen.png
+    - assets/export_icon.png
+    - assets/export.png
+    - assets/pdf.png
+    - assets/share_link.png
+    - assets/word.png
+    - assets/Illustratrion-1.png
+    - assets/Illustratrion-2.png
+    - assets/Illustratrion-3.png
+    - assets/award.png
+    - assets/globe.png
+    - assets/profes.png
+    - assets/student.png
+    - assets/teacher.png
+    - assets/Vector_download.png
+    - assets/Icon_annotion.png
+    
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular-Font.ttf
+   

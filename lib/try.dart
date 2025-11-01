@@ -1,447 +1,179 @@
 import "dart:developer";
-
-import "package:etymology/grammaticalwordpage.dart";
-import "package:etymology/navbar.dart";
-import "package:etymology/services/remote_services.dart";
+import "package:extended_text_field/extended_text_field.dart";
 import "package:flutter/material.dart";
-// import "package:http/http.dart";
-import "package:provider/provider.dart";
-import "providers.dart";
-import 'package:google_fonts/google_fonts.dart';
-import 'highlight_spanbuilder.dart';
-import 'package:extended_text_field/extended_text_field.dart';
+import "package:pdf/pdf.dart";
+// import "package:pdf/pdf.dart";
+import 'package:pdf/widgets.dart' as pd;
 
-class NotesEditor extends StatefulWidget {
+class Try extends StatefulWidget {
+  const Try({super.key});
   @override
-  _NotesEditorState createState() => _NotesEditorState();
+  State createState() => _Try();
 }
 
-class _NotesEditorState extends State<NotesEditor> {
-  final TextEditingController controller = TextEditingController();
-  final UndoHistoryController undoController= UndoHistoryController();
-  TextSelection? previousSelection;
-  bool _limitPopupShown = false;
-  // int _charCount = 0;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _controller.addListener(() {
-  //     setState(() {
-  //       _charCount = _controller.text.length;
-  //     });
-  //   });
-  // }
-
-
-
-  @override
-void initState() {
-  super.initState();
-
-  controller.addListener(() {
-    if (controller.text.length >= 5000 && !_limitPopupShown) {
-      _limitPopupShown = true;
-      showCenterPopup(context, "You have reached the character limit.");
-    }
-
-    if (controller.text.length < 5000) {
-      _limitPopupShown = false; 
-    }
-    final currentSelection = controller.selection;
-      if (previousSelection != currentSelection && currentSelection.isValid) {
-        print("Previous Selection: $previousSelection");
-        print("Current Selection: $currentSelection");
-        previousSelection = currentSelection;
-      }
-  });
-}
-  bool isAlphanumeric(String char) {
-    return RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
-  }
-
-  bool isSymbol(String char) {
-    return !RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
-  }
-
-void showCenterPopup(BuildContext context, String message) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      content: Text(message),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text("OK"),
-        ),
-      ],
-    ),
-  );
-}
-
-  void _highlightSelection() {
-    log("${controller.selection.start}  ,  ${controller.selection.end}");
-    final text = controller.text;
-    final selection = controller.selection;
-    if (!selection.isValid || selection.isCollapsed) return;
-    int start = 0;
-    int end = 0;
-    start = text[selection.start] == " " || isSymbol(text[selection.start])
-        ? selection.start + 1
-        : selection.start;
-    end = text[selection.end] == " " || isSymbol(text[selection.end])
-        ? selection.end - 1
-        : end = selection.end - 2;
-
-    if (start == 0
-        ? false
-        : isAlphanumeric(text[start - 1]) || end == text.length
-            ? false
-            : isAlphanumeric(text[end + 1])) {
-      return;
-    } else {
-      final selectedWord =
-          text.substring(selection.start, selection.end).trim();
-      if (selectedWord.isEmpty || selectedWord.contains(" ")) return;
-
-if (context.read<HighlightProvider>().isGrammatical(selectedWord)) {
-  showCenterPopup(context, "⚠️ '$selectedWord' is a grammatical word and cannot be highlighted.");
-  return;
-}
-
-      final success = context
-          .read<HighlightProvider>()
-          .toggleHighlight(selectedWord, start, end);
-      if (!success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("You can highlight up to 10 words only.")),
-        );
-      }
-    }
-  }
-
-  void updateLocations() {
-    HighlightProvider highlightProvider = context.read<HighlightProvider>();
-    List highlightedWordsLocations = highlightProvider.highlightedWordLocations.map((element){return element;}).toList();
-    int diff = controller.text.length - highlightProvider.prevTextLength;
-
-      for (List highlightedWordsLocation in highlightedWordsLocations){
-       if( highlightedWordsLocation[0] > previousSelection!.start){
-        highlightedWordsLocation[0]=highlightedWordsLocation[0]+diff;
-        highlightedWordsLocation[1]=highlightedWordsLocation[1]+diff;
-       }
-         
-      }
-    
-
-    highlightProvider.setPrevTextLength(controller.text.length);
-  }
-  
-
+class _Try extends State {
+  String text = "As a medical student, it is essential to build a solid foundation across multiple medical disciplines, not only to master theoretical knowledge but also to understand how different organ systems interact in complex ways during health and disease. One condition that exemplifies the need for multidisciplinary understanding is anemia, a clinical condition defined by a reduction in the total number of red blood cells (RBCs), hemoglobin concentration, or hematocrit, leading to diminished oxygen-carrying capacity of the blood. Although it may appear to be a hematological issue at first glance, aanemia profoundly affects nearly every organ system and falls within the diagnostic and therapeutic scope of several medical specialties. It is not merely a laboratory finding but a systemic condition with far-reaching consequences. Understanding its implications across disciplines such as cardiology, dermatology, neurology, oncology, hepatology, nephrology, gynecology, radiology, and virology can help future physicians provide more comprehensive care.In cardiology, anemia plays a significant role in both acute and chronic disease presentations. The heart, which relies on a constant supply of oxygen to sustain high metabolic demands, becomes particularly vulnerable when hemoglobin levels are insufficient. Anemia can exacerbate conditions such as heart failure, ischemic heart disease, and arrhythmias by increasing cardiac workload in an attempt to compensate for reduced oxygen delivery. This results in a condition termed high-output heart failure, where cardiac output is increased due to peripheral vasodilation and reduced systemic vascular resistance, commonly seen in chronic severe anemia. Clinically, patients may present with worsening dyspnea, chest pain, tachycardia, or fatigue, often leading cardiologists to perform detailed investigations, including echocardiography and stress testing. Moreover, anemia of chronic disease is frequently observed in patients with longstanding cardiac conditions, indicating a bi-directional relationship. Recognizing anemia early in cardiology settings can prevent hospital readmissions and improve long-term outcomes. Thus, cardiologists must be proficient in interpreting complete blood counts (CBC), iron studies, and reticulocyte indices, and collaborate with hematologists when necessary.In dermatology, anemia can manifest in subtle yet diagnostically valuable skin changes. One of the most classic signs is pallor, especially noticeable in areas where capillaries are close to the surface, such as the nail beds, palmar creases, and conjunctiva. Iron-deficiency anemia can also lead to koilonychia (spoon-shaped nails), pruritus, angular cheilitis, and glossitis, all of which offer important clinical clues. Certain chronic skin disorders such as lichen planus, eczema, or psoriasis may flare up or worsen in anemic states due to impaired immune function and poor tissue oxygenation. Furthermore, vitamin deficiencies—particularly vitamin B12 and folate—can produce hyperpigmentation, vitiligo, or seborrheic dermatitis-like rashes. Dermatologists need to consider systemic causes like anemia when treating recurrent or unresponsive dermatologic conditions, especially in malnourished, elderly, or menstruating female patients. Identifying these signs early can prompt referral for further evaluation and appropriate management, demonstrating how dermatological examination is often the first step toward diagnosing systemic illness.The impact of anemia on the nervous system is equally significant, making it a crucial concern in neurology. The brain, highly sensitive to oxygen deprivation, can exhibit a wide range of symptoms when anemia is present. These include headaches, dizziness, fatigue, poor concentration, cognitive decline, syncope, and memory loss. In severe or chronic cases, hypoxia-induced encephalopathy may develop. Iron-deficiency anemia has been particularly "; 
+  bool isEnabled = false;
+  TextEditingController controller = TextEditingController();
+  TextStyle textStyle = TextStyle(
+  fontSize: 12,
+  // letterSpacing: -0.0142,
+  letterSpacing: 0,
+  // fontWeight: FontWeight.w900, // equivalent to pw.FontWeight.normal
+  // wordSpacing: 1.65,
+  wordSpacing: 1.5,
+  height: 1.3,
+  fontFamily: "NotoSans" // approximated line spacing to line height ratio // required if used outside Material widgets
+); 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    final highlightProvider = Provider.of<HighlightProvider>(context);
     return Scaffold(
-        body: ListView(
-      children: [
-        CustomNavbar(),
-        Padding(
-          padding: EdgeInsets.only(top: width*0.038, right: width*0.09, left: width*0.09),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: EdgeInsets.all(width*0.017),
-                width: width*0.665,
-                height: width*0.057,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE7F3FF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "assets/i.png",
-                      height: width*0.019 ,
-                    ),
-                    SizedBox(
-                      width: width*0.017,
-                    ),
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          style: GoogleFonts.poppins(
-                              fontSize: width*0.0138, color: Colors.black),
-                          children: [
-                            TextSpan(text: 'Paste your study notes and click '),
-                            TextSpan(
-                              text: '‘Annotate’',
-                              style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            TextSpan(
-                                text:
-                                    ' to see enriched etymological meanings.'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+      body: ListView(
+        children: [
+          Center(
+            child: Container(
+              margin: EdgeInsets.all(20),
+              decoration: BoxDecoration(border: Border.all()),
+              height: 775,
+              width: PdfPageFormat.a4.width-100,
+              child: ExtendedTextField(
+                style: textStyle,
+                expands: true,
+                maxLines: null,
+                controller: controller,
               ),
-               SizedBox(
-                height: width*0.019,
-              ),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      height: width*0.033,
-                      width: width*0.0861,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          // color: Color.fromARGB(1, 255, 255, 255),
-                          border: Border.all(
-                            width: 1,
-                            color: Color.fromARGB(255, 166, 166, 166),
-                          )),
-                      child: Text('Paste',
-                          style: GoogleFonts.poppins(
-                              letterSpacing: 0.08,
-                              fontSize: width*0.0166,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      _highlightSelection();
-                    },
-                    child: Container(
-                        height: width*0.033,
-                        width: width*0.125,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            // color: Color.fromARGB(1, 255, 255, 255),
-                            border: Border.all(
-                              width: 1,
-                              color: Color.fromARGB(255, 166, 166, 166),
-                            )),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              "assets/brush-square.png",
-                              height: width*0.0305,
-                              width: width*0.0305,
-                            ),
-                            SizedBox(
-                              width: width*0.0069,
-                            ),
-                            Text('Highlight',
-                                style: GoogleFonts.poppins(
-                                    letterSpacing: 0.08,
-                                    fontSize: width*0.0166,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black)),
-                          ],
-                        )),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      highlightProvider.clear();},
-                    child: Container(
-                      height: width*0.033,
-                      width: width*0.1,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          // color: Color.fromARGB(1, 255, 255, 255),
-                          border: Border.all(
-                            width: 1,
-                            color: Color.fromARGB(255, 166, 166, 166),
-                          )),
-                      child: Text('Clear All',
-                          style: GoogleFonts.poppins(
-                              letterSpacing: 0.08,
-                              fontSize: width*0.0166,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black)),
-                    ),
-                  ),
-                   SizedBox(
-                    width: width*0.0194,
-                  )
-                ],
-              ),
-               SizedBox(
-                height: width*0.02,
-              ),
-              Container(
-                height: width*0.263,
-                width: width*0.805,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      width: 1,
-                      color: Color.fromARGB(255, 166, 166, 166),
-                    )),
-                alignment: Alignment.topLeft,
-                child: TextSelectionTheme(
-                  data: TextSelectionThemeData(
-                    selectionColor: Colors.blue,
-                  ),
-                  child: ExtendedTextField(
-                    onChanged: (string) {
-                      updateLocations();
-                    },
-                    undoController: undoController,
-                    controller: controller,
-                    expands: true,
-                    maxLines: null,
-                    specialTextSpanBuilder:
-                        HighlightSpanBuilder(highlightProvider),
-                    decoration: InputDecoration.collapsed(
-                        hintText: "Type and select words to highlight"),
-                  ),
-                ),
-              ),
-               SizedBox(
-                height: width*0.0194,
-              ),
-              GestureDetector(
-                onTap: () {
-                  getWordInfo(context);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                        height: width*0.033,
-                        width: width*0.125,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 54, 59, 186),
-                            borderRadius: BorderRadius.circular(8),
-                            // color: Color.fromARGB(1, 255, 255, 255),
-                            border: Border.all(
-                              width: 1,
-                              color: Color.fromARGB(255, 166, 166, 166),
-                            )),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Image.asset(
-                            //   "assets/magicpen.png",
-                            //   height: 30,
-                            //   width: 30,
-                            // ),
-                            SizedBox(
-                              width: width*0.0069,
-                            ),
-                            Text('Annotate',
-                                style: GoogleFonts.poppins(
-                                    letterSpacing: 0.08,
-                                    fontSize: width*0.0166,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white)),
-                          ],
-                        )),
-                  ],
-                ),
-              ),
-
-              //annotate box
-              highlightProvider.highlightWordsData.isEmpty?
-              const Text(""):
-
-              Column(
-                children: [
-                   SizedBox(height: width*0.0194,),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    height: width*0.2638,
-                    width: width*0.805,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          width: 1,
-                          color: Color.fromARGB(255, 166, 166, 166),
-                        )),
-                    alignment: Alignment.topLeft,
-                    child: TextSelectionTheme(
-                      data: TextSelectionThemeData(
-                        selectionColor: Colors.blue,
-                      ),
-                      child: ListView.builder(
-                        itemCount: highlightProvider.highlightWordsData.length,
-                        itemBuilder:
-                      (context,index){
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("name : ${highlightProvider.highlightWordsData[index]["name"]}",
-                          style: TextStyle(fontWeight: FontWeight.w900),),
-                            Text(highlightProvider.highlightWordsData[index]["description"]),
-                            SizedBox(height: 0.0138,),
-                          ],
-                        );
-                      }
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-
-
-               SizedBox(
-                height: 0.0138,
-              ),
-
-
-              // Wrap(
-              //   children: highlightProvider.highlightedWords
-              //       .map((word) => Chip(label: Text(word)))
-              //       .toList(),
-              // ),
-               SizedBox(height: 0.0207),
-//               GestureDetector(
-//   onTap: () {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(builder: (context) => GrammarWordsPage()),
-//     );
-//   },
-//   child: Container(
-//     margin: const EdgeInsets.only(top: 20),
-//     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-//     decoration: BoxDecoration(
-//       color: Colors.green,
-//       borderRadius: BorderRadius.circular(8),
-//     ),
-//     child: Text(
-//       'Show Highlighted Words',
-//       style: TextStyle(color: Colors.white, fontSize: 18),
-//     ),
-//   ),
-// ),
- 
-
-            ],
+            ),
           ),
-        ),
-      ], 
-    ));
+          ElevatedButton(
+              onPressed: () {
+                int result = getFittingTextForBox(
+                    text: controller.text,
+                    maxHeight: 775,
+                    maxWidth: PdfPageFormat.a4.width-100,
+                    textStyle: textStyle);
+                log("=> $result");
+                log(controller.text.substring(0, result));
+                text = controller.text.substring(0, result);
+                setState(() {
+                  isEnabled = true;
+                });
+              },
+              child: Text("press me")),
+          SizedBox(
+            height: 60,
+          ),
+
+          // isEnabled
+
+          true
+              ? Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        // padding: EdgeInsets.only(),
+                        // margin: EdgeInsets.all(20),
+                        height: 700,
+                        width:PdfPageFormat.a4.width-100.toInt(),
+                        // decoration: BoxDecoration(border: Border.all()),
+                        child: RichText(text: TextSpan(text: text,style: textStyle))
+                        // Text(text, style: textStyle),
+                      ),
+                      Text("${PdfPageFormat.a4.width-100}") // 495.27559055118104
+                    ],
+                  ),
+                )
+              : Text(""),
+        ],
+      ),
+    );
   }
+}
+
+int getFittingTextForBox({
+  required String text,
+  required double maxWidth,
+  required double maxHeight,
+  required TextStyle textStyle,
+}) {
+  final textPainter = TextPainter(
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.left,
+    maxLines: null,
+  );
+
+  int start = 0;
+  int end = text.length;
+  int resultIndex = 0;
+
+  while (start <= end) {
+    final mid = (start + end) ~/ 2;
+    final candidate = text.substring(0, mid);
+
+    textPainter.text = TextSpan(text: candidate, style: textStyle);
+    textPainter.layout(maxWidth: maxWidth);
+
+    if (textPainter.height <= maxHeight) {
+      resultIndex = mid;
+      start = mid + 1;
+    } else {
+      end = mid - 1;
+    }
+  }
+  return resultIndex;
+}
+
+
+int getFittingCharCountPdf({
+  required String text,
+  required double maxWidth,
+  required double maxHeight,
+  required pd.Font font,
+  double fontSize = 12,
+  double wordSpacing = 1.5,
+  double lineSpacing = 2,
+}) {
+  try {
+    pd.TextStyle style = pd.TextStyle(
+      font: font,
+      fontSize: fontSize,
+      wordSpacing: wordSpacing,
+      lineSpacing: lineSpacing,
+    );
+
+    int low = 0;
+    int high = text.length;
+    int result = 0;
+
+    while (low <= high) {
+      int mid = (low + high) ~/ 2;
+      String subText = text.substring(0, mid);
+
+      final span = pd.TextSpan(text: subText, style: style);
+      final rt = pd.RichText(text: span);
+      log("^^^1");
+      final doc = PdfDocument();
+      final context = pd.Context(document: doc);
+
+      final constraints = pd.BoxConstraints(maxWidth: maxWidth);
+
+// Layout the widget and get the result context
+      //  rt.layout(context, constraints);
+      // rt.layout(pd.Context(document: PdfDocument()),
+      //     pd.BoxConstraints(maxWidth: maxWidth));
+      log("^^^2");
+      final height = rt.box!.height;
+      if (height <= maxHeight){
+        result = mid;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    return result;
+  } catch (e) {
+    log("error in getFittingCharCountPdf");
+    log("$e");
+  }
+  return -1;
 }

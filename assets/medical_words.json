@@ -1,0 +1,402 @@
+[
+  {
+    "word": "Anemia",
+    "description": "Deficiency in red blood cells affecting oxygen delivery",
+    "origin": "Greek ('an-' = without, 'haima' = blood)",
+    "prefix": "an-",
+    "suffix": "-emia",
+    "definition": "Lack of healthy red blood cells causing fatigue"
+  },
+  {
+    "word": "Cardiology",
+    "description": "Study of the heart",
+    "origin": "Greek ('kardia' = heart, 'logos' = study)",
+    "prefix": "cardio-",
+    "suffix": "-logy",
+    "definition": "Branch of medicine for heart disorders"
+  },
+  {
+    "word": "Dermatology",
+    "description": "Study of the skin",
+    "origin": "Greek ('derma' = skin)",
+    "prefix": "dermato-",
+    "suffix": "-logy",
+    "definition": "Science dealing with skin diseases"
+  },
+  {
+    "word": "Neurology",
+    "description": "Study of the nervous system",
+    "origin": "Greek ('neuron' = nerve)",
+    "prefix": "neuro-",
+    "suffix": "-logy",
+    "definition": "Study of brain, spinal cord, and nerves"
+  },
+  {
+    "word": "Oncology",
+    "description": "Study of cancer",
+    "origin": "Greek ('onkos' = mass)",
+    "prefix": "onco-",
+    "suffix": "-logy",
+    "definition": "Medical field for diagnosing and treating tumors"
+  },
+  {
+    "word": "Pathology",
+    "description": "Study of disease causes",
+    "origin": "Greek ('pathos' = suffering)",
+    "prefix": "patho-",
+    "suffix": "-logy",
+    "definition": "Medical science of disease origin and development"
+  },
+  {
+    "word": "Radiology",
+    "description": "Medical imaging for diagnosis",
+    "origin": "Latin ('radius' = ray)",
+    "prefix": "radio-",
+    "suffix": "-logy",
+    "definition": "Use of X-rays and scans in treatment"
+  },
+  {
+    "word": "Pediatrics",
+    "description": "Medicine for children",
+    "origin": "Greek ('pais' = child)",
+    "prefix": "ped-",
+    "suffix": "-iatrics",
+    "definition": "Branch dealing with child health"
+  },
+  {
+    "word": "Geriatrics",
+    "description": "Medical care for the elderly",
+    "origin": "Greek ('geron' = old man)",
+    "prefix": "ger-",
+    "suffix": "-iatrics",
+    "definition": "Healthcare for aging populations"
+  },
+  {
+    "word": "Immunology",
+    "description": "Study of immune system",
+    "origin": "Latin ('immunis' = exempt)",
+    "prefix": "immuno-",
+    "suffix": "-logy",
+    "definition": "Research on body’s defense mechanisms"
+  },
+  {
+    "word": "Pharmacology",
+    "description": "Study of drug interactions",
+    "origin": "Greek ('pharmakon' = drug)",
+    "prefix": "pharmaco-",
+    "suffix": "-logy",
+    "definition": "Study of medicine effects on the body"
+  },
+  {
+    "word": "Toxicology",
+    "description": "Study of poisons",
+    "origin": "Greek ('toxikon' = poison)",
+    "prefix": "toxico-",
+    "suffix": "-logy",
+    "definition": "Science of harmful chemical effects"
+  },
+  {
+    "word": "Anatomy",
+    "description": "Study of body structure",
+    "origin": "Greek ('ana' = up, 'tome' = cutting)",
+    "prefix": "ana-",
+    "suffix": "-tomy",
+    "definition": "Science of body parts and systems"
+  },
+  {
+    "word": "Hematology",
+    "description": "Study of blood",
+    "origin": "Greek ('haima' = blood)",
+    "prefix": "hemato-",
+    "suffix": "-logy",
+    "definition": "Branch studying blood and diseases"
+  },
+  {
+    "word": "Nephrology",
+    "description": "Study of kidneys",
+    "origin": "Greek ('nephros' = kidney)",
+    "prefix": "nephro-",
+    "suffix": "-logy",
+    "definition": "Kidney health and disease treatment"
+  },
+  {
+    "word": "Urology",
+    "description": "Study of urinary tract",
+    "origin": "Greek ('ouron' = urine)",
+    "prefix": "uro-",
+    "suffix": "-logy",
+    "definition": "Medicine for urinary and male reproductive organs"
+  },
+  {
+    "word": "Gynecology",
+    "description": "Study of female reproductive health",
+    "origin": "Greek ('gynē' = woman)",
+    "prefix": "gyneco-",
+    "suffix": "-logy",
+    "definition": "Medicine focused on women's reproductive system"
+  },
+  {
+    "word": "Psychiatry",
+    "description": "Treatment of mental illness",
+    "origin": "Greek ('psyche' = mind, 'iatreia' = healing)",
+    "prefix": "psych-",
+    "suffix": "-iatry",
+    "definition": "Medical specialty for mental disorders"
+  },
+  {
+    "word": "Orthopedics",
+    "description": "Treatment of bones and muscles",
+    "origin": "Greek ('orthos' = straight, 'paideia' = child-rearing)",
+    "prefix": "ortho-",
+    "suffix": "-pedics",
+    "definition": "Correction of skeletal deformities"
+  },
+  {
+    "word": "Endocrinology",
+    "description": "Study of hormones",
+    "origin": "Greek ('endon' = within, 'krinō' = to separate)",
+    "prefix": "endocrino-",
+    "suffix": "-logy",
+    "definition": "Medicine dealing with endocrine glands"
+  },
+  {
+    "word": "Rheumatology",
+    "description": "Study of joint diseases",
+    "origin": "Greek ('rheuma' = that which flows)",
+    "prefix": "rheumato-",
+    "suffix": "-logy",
+    "definition": "Study of arthritis and autoimmune disorders"
+  },
+  {
+    "word": "Pulmonology",
+    "description": "Study of the lungs",
+    "origin": "Latin ('pulmo' = lung)",
+    "prefix": "pulmo-",
+    "suffix": "-logy",
+    "definition": "Medical specialty for respiratory system"
+  },
+  {
+    "word": "Ophthalmology",
+    "description": "Study of eye and vision",
+    "origin": "Greek ('ophthalmos' = eye)",
+    "prefix": "ophthalmo-",
+    "suffix": "-logy",
+    "definition": "Diagnosis and treatment of eye conditions"
+  },
+  {
+    "word": "Otolaryngology",
+    "description": "Study of ear, nose, and throat",
+    "origin": "Greek ('oto' = ear, 'laryngo' = throat)",
+    "prefix": "oto-, laryngo-",
+    "suffix": "-logy",
+    "definition": "ENT medical specialty"
+  },
+  {
+    "word": "Allergy",
+    "description": "Immune reaction to harmless substances",
+    "origin": "Greek ('allos' = other, 'ergon' = work)",
+    "prefix": "all-",
+    "suffix": "-ergy",
+    "definition": "Hypersensitive immune response"
+  },
+  {
+    "word": "Hepatology",
+    "description": "Study of the liver",
+    "origin": "Greek ('hepar' = liver)",
+    "prefix": "hepato-",
+    "suffix": "-logy",
+    "definition": "Branch of medicine focused on liver diseases"
+  },
+  {
+    "word": "Gastroenterology",
+    "description": "Study of digestive system",
+    "origin": "Greek ('gaster' = stomach, 'enteron' = intestine)",
+    "prefix": "gastro-, entero-",
+    "suffix": "-logy",
+    "definition": "Diagnosis and treatment of gastrointestinal disorders"
+  },
+  {
+    "word": "Dentistry",
+    "description": "Oral health care",
+    "origin": "Latin ('dens' = tooth)",
+    "prefix": "dent-",
+    "suffix": "-istry",
+    "definition": "Medical field concerned with teeth and oral tissues"
+  },
+  {
+    "word": "Virology",
+    "description": "Study of viruses",
+    "origin": "Latin ('virus' = poison)",
+    "prefix": "viro-",
+    "suffix": "-logy",
+    "definition": "Study of virus structure, function, and disease"
+  },
+  {
+    "word": "Bacteriology",
+    "description": "Study of bacteria",
+    "origin": "Greek ('bakterion' = small stick)",
+    "prefix": "bacterio-",
+    "suffix": "-logy",
+    "definition": "Study of bacterial types and infections"
+  },
+  {
+    "word": "Audiology",
+    "description": "Study of hearing",
+    "origin": "Latin ('audire' = to hear)",
+    "prefix": "audio-",
+    "suffix": "-logy",
+    "definition": "Medical field focused on hearing and balance disorders"
+  },
+  {
+    "word": "Cytology",
+    "description": "Study of cells",
+    "origin": "Greek ('kytos' = container)",
+    "prefix": "cyto-",
+    "suffix": "-logy",
+    "definition": "Science of cell structure and function"
+  },
+  {
+    "word": "Histology",
+    "description": "Study of tissues",
+    "origin": "Greek ('histos' = tissue)",
+    "prefix": "histo-",
+    "suffix": "-logy",
+    "definition": "Microscopic study of biological tissues"
+  },
+  {
+    "word": "Mycology",
+    "description": "Study of fungi",
+    "origin": "Greek ('mykes' = fungus)",
+    "prefix": "myco-",
+    "suffix": "-logy",
+    "definition": "Study of fungal organisms and infections"
+  },
+  {
+    "word": "Obstetrics",
+    "description": "Medical care during pregnancy and childbirth",
+    "origin": "Latin ('obstetrix' = midwife)",
+    "prefix": "obstet-",
+    "suffix": "-rics",
+    "definition": "Branch of medicine concerned with childbirth and prenatal care"
+  },
+  {
+    "word": "Embryology",
+    "description": "Study of embryos and development",
+    "origin": "Greek ('embryon' = fetus)",
+    "prefix": "embryo-",
+    "suffix": "-logy",
+    "definition": "Study of formation and growth of embryos"
+  },
+  {
+    "word": "Genetics",
+    "description": "Study of heredity and genes",
+    "origin": "Greek ('genesis' = origin)",
+    "prefix": "gene-",
+    "suffix": "-tics",
+    "definition": "Biological science of genes and inheritance"
+  },
+  {
+    "word": "Kinesiology",
+    "description": "Study of body movement",
+    "origin": "Greek ('kinesis' = movement)",
+    "prefix": "kinesio-",
+    "suffix": "-logy",
+    "definition": "Science of human movement and mechanics"
+  },
+  {
+    "word": "Pathophysiology",
+    "description": "Study of disordered body function",
+    "origin": "Greek ('pathos' = suffering, 'physis' = nature)",
+    "prefix": "patho-, physio-",
+    "suffix": "-logy",
+    "definition": "Study of functional changes in disease"
+  },
+  {
+    "word": "Biochemistry",
+    "description": "Chemistry of living organisms",
+    "origin": "Greek ('bios' = life + chemistry)",
+    "prefix": "bio-",
+    "suffix": "-chemistry",
+    "definition": "Study of chemical processes within living beings"
+  },
+  {
+    "word": "Microbiology",
+    "description": "Study of microorganisms",
+    "origin": "Greek ('mikros' = small, 'bios' = life)",
+    "prefix": "microbio-",
+    "suffix": "-logy",
+    "definition": "Study of bacteria, viruses, fungi, and protozoa"
+  },
+  {
+    "word": "Epidemiology",
+    "description": "Study of disease patterns",
+    "origin": "Greek ('epi' = upon, 'demos' = people)",
+    "prefix": "epidemio-",
+    "suffix": "-logy",
+    "definition": "Study of disease incidence in populations"
+  },
+  {
+    "word": "Proctology",
+    "description": "Study of rectal and anal disorders",
+    "origin": "Greek ('proktos' = anus)",
+    "prefix": "procto-",
+    "suffix": "-logy",
+    "definition": "Branch of medicine for colon and rectal issues"
+  },
+  {
+    "word": "Serology",
+    "description": "Study of blood serum",
+    "origin": "Latin ('serum' = whey)",
+    "prefix": "sero-",
+    "suffix": "-logy",
+    "definition": "Testing and analysis of immune responses in blood"
+  },
+  {
+    "word": "Therapeutics",
+    "description": "Study of treatment methods",
+    "origin": "Greek ('therapeuein' = to take care of)",
+    "prefix": "therap-",
+    "suffix": "-eutics",
+    "definition": "Branch focused on healing and treatment options"
+  },
+  {
+    "word": "Biostatistics",
+    "description": "Statistics in biological research",
+    "origin": "Greek ('bios' = life, 'statistikos' = pertaining to numbers)",
+    "prefix": "bio-",
+    "suffix": "-statistics",
+    "definition": "Analysis of data in medical studies"
+  },
+  {
+    "word": "Anesthesiology",
+    "description": "Study of anesthesia and pain control",
+    "origin": "Greek ('an' = without, 'aisthesis' = sensation)",
+    "prefix": "anesthesio-",
+    "suffix": "-logy",
+    "definition": "Medical specialty for managing pain and sedation"
+  },
+  {
+    "word": "Orthodontics",
+    "description": "Correction of teeth and jaw alignment",
+    "origin": "Greek ('orthos' = straight, 'odous' = tooth)",
+    "prefix": "ortho-",
+    "suffix": "-dontics",
+    "definition": "Dental specialty for correcting misaligned teeth"
+  },
+  {
+    "word": "Podiatry",
+    "description": "Medical care for feet",
+    "origin": "Greek ('pous' = foot)",
+    "prefix": "pod-",
+    "suffix": "-iatry",
+    "definition": "Branch of medicine dealing with foot disorders"
+  },
+  {
+    "word": "Traumatology",
+    "description": "Study of wounds and injuries",
+    "origin": "Greek ('trauma' = wound)",
+    "prefix": "trauma-",
+    "suffix": "-logy",
+    "definition": "Treatment of physical injuries caused by accidents or violence"
+  }
+]

@@ -1,39 +1,63 @@
+import 'dart:developer';
+import 'package:etymology/highlight_block_formatter.dart';
+import 'package:etymology/tapHandler.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'providers.dart';
 
 class HighlightSpanBuilder extends SpecialTextSpanBuilder {
   final HighlightProvider highlightProvider;
+  final BuildContext context;
+  final TextEditingController controller;
 
-  HighlightSpanBuilder(this.highlightProvider);
+  HighlightSpanBuilder(this.highlightProvider,this.context,this.controller);
 
  @override
 TextSpan build(String data, {TextStyle? textStyle, onTap}) {
-  final List<InlineSpan> children = [];
+  try{
+      final List<InlineSpan> children = [];
+      final TapHandler tapHandler = TapHandler();
   // final wordRegEx = RegExp(r'(\s+|\S+)'); // Captures both words and spaces
   // final matches = wordRegEx.allMatches(data);
-  List highlightedWordsLocations = highlightProvider.highlightedWordLocations.map((element){return element;}).toList();
-  // List wordLocations=highlightedWords.values.toList();
-  highlightedWordsLocations.sort((a, b) => a[0].compareTo(b[0]));
+  List highlightedRangesReference = highlightProvider.highlightedRanges;
+      List highlightedRanges=highlightedRangesReference.map((e) => e).toList();
+      // List wordLocations=highlightedWords.values.toList();
+      highlightedRanges.sort((a, b) => a.start.compareTo(b.start));
   int globalStart=0;
-  for (final highlightedWordsLocation in highlightedWordsLocations) {
-    // final part = match.group(0)!;
-    // final cleanPart = part.trim();
-    // final isHighlighted = highlightProvider.isHighlighted(cleanPart);
+  for (HighlightedRange highlightedWordsLocation in highlightedRanges) {
     children.add(TextSpan(
-      text: data.substring(globalStart,highlightedWordsLocation[0]),
+      text: data.substring(globalStart,highlightedWordsLocation.start),
       style: textStyle?.copyWith(
         backgroundColor: null,
       ),
     ));
     children.add(TextSpan(
-      text: data.substring(highlightedWordsLocation[0],highlightedWordsLocation[1]+1),
+      recognizer: TapGestureRecognizer()
+    ..onTapDown = (details) {
+      tapHandler.handleTapDown(
+        details: details,
+        onSingleTap: () {
+          Map info= highlightProvider.highlightWordsData[data.substring(highlightedWordsLocation.start,highlightedWordsLocation.end).toLowerCase()]??{"word":"Loading..."};
+          print(" Single Tap Detected at ${details.globalPosition}");
+          // showPopupAtFixedPosition(context,details.globalPosition,info);
+          //  OverlayManager().showOverlay(context: context, position:details.globalPosition, info: info);
+          highlightProvider.insertDescriptionPopUp(context,details.globalPosition,info);
+        },
+        onDoubleTap: () async{
+          print(" Double Tap Detected at ${details.globalPosition}");
+         await highlightProvider.changeEditorFocusState;
+          controller.selection=TextSelection(baseOffset: highlightedWordsLocation.start, extentOffset: highlightedWordsLocation.end);
+        },
+      );
+    },
+      text: data.substring(highlightedWordsLocation.start,highlightedWordsLocation.end),
       style: textStyle?.copyWith(
-        backgroundColor: Colors.yellow.withAlpha(128) ,
-        
-      ),
-    ));
-    globalStart=highlightedWordsLocation[1]+1;
+            backgroundColor: Colors.yellow.withAlpha(128),
+          ),
+    ),
+    );
+    globalStart=highlightedWordsLocation.end;
   }
   children.add(TextSpan(
       text: data.substring(globalStart),
@@ -44,12 +68,16 @@ TextSpan build(String data, {TextStyle? textStyle, onTap}) {
 
   return TextSpan(children: children, style: textStyle);
 
+  }catch(e){
+    log("***error in rendering : $e");
+    return TextSpan();
+  }
+
 
   }
   
   @override
   SpecialText? createSpecialText(String flag, {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap, required int index}) {
-
     throw UnimplementedError();
   }
 
