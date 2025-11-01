@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import "package:provider/provider.dart";
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'homepage.dart';
+import 'main_page.dart';
 void main() async{
  WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
@@ -31,11 +32,14 @@ class MainApp extends StatelessWidget {
     return  MaterialApp(
       debugShowCheckedModeBanner: false,
       // home:Try(),
-      home:NotesEditor(),
+      home: MyWidget(),
+      // home:NotesEditor(),
       // home:MedicalTermsEtymoPage(),
       // home: LoginScreen(),
       //Secondpage(),
       //NotesEditor(),
     );
   }
+  
+  
 }

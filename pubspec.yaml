@@ -49,6 +49,17 @@ flutter:
     - assets/pdf.png
     - assets/share_link.png
     - assets/word.png
+    - assets/Illustratrion-1.png
+    - assets/Illustratrion-2.png
+    - assets/Illustratrion-3.png
+    - assets/award.png
+    - assets/globe.png
+    - assets/profes.png
+    - assets/student.png
+    - assets/teacher.png
+    - assets/Vector_download.png
+    - assets/Icon_annotion.png
+    
   fonts:
     - family: NotoSans
       fonts:

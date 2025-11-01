@@ -12,7 +12,7 @@ class CustomNavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
+      height: 80,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       color: const Color(0xFF363BBA), // Blue navbar background
       child: Row(
