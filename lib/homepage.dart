@@ -251,7 +251,7 @@ class _NotesEditorState extends State<NotesEditor> {
                   Row(
                     children: [
                       buildButton("Paste", width * 0.0761, () async{
-                        genaratePDF(noteController.text,highlightProvider.highlightedRanges,{});
+                        // genaratePDF(noteController.text,highlightProvider.highlightedRanges,{});
                         //  await fetchMedicalTerms(highlightProvider);
                       }),
                       SizedBox(width: width * 0.014),

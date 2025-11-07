@@ -3,6 +3,7 @@ import "dart:developer";
 import "package:etymology/highlight_block_formatter.dart";
 import "package:etymology/pdfExport.dart";
 import "package:etymology/providers.dart";
+import "package:etymology/services/remote_services.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:provider/provider.dart";
@@ -228,9 +229,11 @@ void exportNotesPopUp(BuildContext context, data, String paragraph) {
               children: [
                 GestureDetector(
                    onTap: ()async {
-                    List<HighlightedRange> highlightedWords=context.read<HighlightProvider>().highlightedRanges;
-                    Map highlightWordsData=context.read<HighlightProvider>().highlightWordsData;
-                   await genaratePDF(paragraph,highlightedWords,highlightWordsData);
+                    HighlightProvider highlightProvider= context.read<HighlightProvider>();
+                    List<HighlightedRange> highlightedWordRange=highlightProvider.highlightedRanges;
+                    Map highlightWordsData=highlightProvider.highlightWordsData;
+                    List<String> words= highlightProvider.highlightedWords;
+                   await genaratePDF(paragraph,highlightedWordRange,highlightWordsData,words);
                    Navigator.pop(context);
                     showSuccessPopup(context);
                     // pdfPreviewPopUp(context,data);

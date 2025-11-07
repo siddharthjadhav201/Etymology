@@ -1,8 +1,8 @@
 // lib/pages/medical_terms_etymo_page.dart
 import 'dart:convert';
 import 'dart:developer';
+import 'package:etymology/pdfHistoryPage.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MedicalTermsEtymoPage extends StatefulWidget {
@@ -688,6 +688,25 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
           'Refine Medical Terms Description',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
         ),
+        actions: [
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder:(context)=>PdfHistoryPage() ));
+            },
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white)
+                  ),
+                  child: const Text('PDF History', style: TextStyle(color: Colors.white))),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
+        ],
         // actions: [
         //   Row(
         //     children: [

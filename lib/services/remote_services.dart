@@ -217,3 +217,28 @@ Future<List> getDataFromDatabase(List words)async{
 // }
 
 
+Future<String?> uploadPdfToSupabase(Uint8List bytes) async {
+  final supabase = Supabase.instance.client;
+
+  // Your Supabase storage bucket name (create one in Supabase dashboard)
+  const bucketName = 'pdfData';
+
+  // Unique filename for the PDF
+  final filePath = 'pdfs/${DateTime.now().millisecondsSinceEpoch}.pdf';
+
+  try {
+    // Upload bytes directly (Flutter web compatible)
+    await supabase.storage
+        .from(bucketName)
+        .uploadBinary(filePath, bytes, fileOptions: const FileOptions(contentType: 'application/pdf'));
+
+    // Get the public URL after upload
+    final publicUrl = supabase.storage.from(bucketName).getPublicUrl(filePath);
+
+    print('Uploaded successfully: $publicUrl');
+    return publicUrl;
+  } catch (e) {
+    print(' Upload failed: $e');
+    return null;
+  }
+}

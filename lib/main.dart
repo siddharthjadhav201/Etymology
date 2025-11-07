@@ -1,6 +1,7 @@
 
 import 'package:etymology/human_in_loop.dart';
 import 'package:etymology/login_page.dart';
+import 'package:etymology/pdfHistoryPage.dart';
 import 'package:etymology/providers.dart';
 import 'package:etymology/try.dart';
 import 'package:flutter/material.dart';
@@ -31,13 +32,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return  MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home:Try(),
+      // home:PdfHistoryPage(),
       home: MyWidget(),
-      // home:NotesEditor(),
-      // home:MedicalTermsEtymoPage(),
-      // home: LoginScreen(),
-      //Secondpage(),
-      //NotesEditor(),
+      
     );
   }
   
