@@ -1,10 +1,10 @@
 
 import "dart:developer";
-import "dart:typed_data";
-
 import "package:etymology/highlight_block_formatter.dart";
 import "package:etymology/pdfStructure.dart";
 import "package:etymology/popUps.dart";
+import "package:etymology/providers.dart";
+import "package:etymology/services/remote_services.dart";
 import "package:etymology/string_functions.dart";
 import "package:etymology/try.dart";
 import "package:flutter/material.dart";
@@ -12,6 +12,7 @@ import "package:flutter/services.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pd;
+import "package:supabase_flutter/supabase_flutter.dart";
 import "package:universal_html/html.dart" as html;
 
 
@@ -93,7 +94,7 @@ pd.Container wordData(data){
   );
   } 
 }
-Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map highlightWordsData)async{
+Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map highlightWordsData,List words)async{
   print(highlightWordsData);
   final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular-Font.ttf');
   final ttf = pd.Font.ttf(fontData);
@@ -150,6 +151,18 @@ Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map 
     ),
   );
   downloadPDF(await pdf.save());
+  String? pdfUrl= await uploadPdfToSupabase(await pdf.save());
+  final supabase = Supabase.instance.client;
+
+  try {
+    await supabase.from('tbl_pdf_data').insert({
+      'pdf_url': pdfUrl,
+      'col_highlighted_words':words
+    });
+  }
+  catch(e){
+    print(e);
+  }
   // return pdf.save();
             
 }
@@ -162,6 +175,8 @@ downloadPDF(Uint8List bytes){
     ..click();
   html.Url.revokeObjectUrl(url);
 }
+
+
 
 
 
@@ -186,5 +201,13 @@ downloadPDF(Uint8List bytes){
             
 // }
 
+
+void storePDFData(){
+  try{
+
+  }catch(e){
+
+  }
+}
 
 

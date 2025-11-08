@@ -23,7 +23,7 @@ class HighlightProvider with ChangeNotifier {
   // final List<List<int>> highlightedWordSelectionLocations= [];
   final List<HighlightedRange> highlightedRanges=[];  //for disable editing highlighred words
   final Set<String> _grammaticalWords = {"is", "are", "the", "of", "to", "in", "on", "and","as","a","it","for","like","or","from","with","such","about","often"};
-  List highlightedWords=[];
+  List<String> highlightedWords=[];
   int prevTextLength=0;
   Set<String> get grammaticalWords => _grammaticalWords;
   Map highlightWordsData={};

@@ -11,6 +11,7 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<MyWidget> {
+  bool isHovered = false;
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -23,7 +24,7 @@ class _MyWidgetState extends State<MyWidget> {
         child: Column(
           children: [
             CustomNavbar(),
-            
+
             // Hero Section
             Container(
               padding: EdgeInsets.symmetric(horizontal: width * 0.0326),
@@ -32,7 +33,8 @@ class _MyWidgetState extends State<MyWidget> {
                   Expanded(
                     flex: 5,
                     child: Container(
-                      margin: EdgeInsets.only(right: width * 0.013, left: width * 0.052),
+                      margin: EdgeInsets.only(
+                          right: width * 0.013, left: width * 0.052),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -55,49 +57,75 @@ class _MyWidgetState extends State<MyWidget> {
                             ),
                           ),
                           SizedBox(height: width * 0.0195),
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => NotesEditor(),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => NotesEditor(),
+                                    ),
+                                  );
+                                },
+                                child: MouseRegion(
+                                  onEnter: (_) =>
+                                      setState(() => isHovered = true),
+                                  onExit: (_) =>
+                                      setState(() => isHovered = false),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    transform: Matrix4.translationValues(
+                                        0, isHovered ? -3 : 0, 0),
+                                    child: Container( 
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.0156,
+                                          vertical: width * 0.0078),
+                                      decoration: BoxDecoration(
+                                        boxShadow: isHovered
+                                            ? [
+                                                BoxShadow(
+                                                  color: Colors.blueAccent
+                                                      .withValues(alpha: 0.6),
+                                                  blurRadius: 20,
+                                                  spreadRadius: 2,
+                                                ),
+                                              ]
+                                            : [],
+                                        color: isHovered? Color.fromARGB(255, 47, 115, 154) : Color(0xFF1E3A8A),
+                                        borderRadius: BorderRadius.circular(
+                                            width * 0.0052),
                                       ),
-                                    );
-                                  },
-                                  child: Container(
-                                   padding: EdgeInsets.symmetric(
-                                       horizontal: width * 0.0156, vertical: width * 0.0078),
-                                   decoration: BoxDecoration(
-                                     color: Color(0xFF1E3A8A),
-                                     borderRadius: BorderRadius.circular(width * 0.0052),
-                                   ),
-                                   child: Row(
-                                     mainAxisSize: MainAxisSize.min,
-                                     children: [
-                                       Icon(Icons.add,
-                                           color: Colors.white, size: width * 0.013),
-                                       SizedBox(width: width * 0.0052),
-                                       Text(
-                                         "Create New Note",
-                                         style: GoogleFonts.poppins(
-                                           color: Colors.white,
-                                           fontWeight: FontWeight.w500,
-                                           fontSize: width * 0.0104,
-                                         ),
-                                       ),
-                                     ],
-                                   ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.add,
+                                              color: Colors.white,
+                                              size: width * 0.013),
+                                          SizedBox(width: width * 0.0052),
+                                          Text(
+                                            "Create New Note",
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: width * 0.0104,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
+                              ),
                               SizedBox(width: width * 0.0104),
                               Container(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.0156, vertical: width * 0.0078),
+                                    horizontal: width * 0.0156,
+                                    vertical: width * 0.0078),
                                 decoration: BoxDecoration(
                                   color: Color(0xFFFFD700),
-                                  borderRadius: BorderRadius.circular(width * 0.0052),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.0052),
                                 ),
                                 child: Text(
                                   "Explore Sample Note",
@@ -133,7 +161,8 @@ class _MyWidgetState extends State<MyWidget> {
             // Features Section
             Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: width * 0.039, horizontal: width * 0.0326),
+              padding: EdgeInsets.symmetric(
+                  vertical: width * 0.039, horizontal: width * 0.0326),
               decoration: BoxDecoration(
                 color: Color(0xFFF3F4F6),
                 image: DecorationImage(
@@ -190,7 +219,9 @@ class _MyWidgetState extends State<MyWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: width * 0.0163,),
+                        SizedBox(
+                          height: width * 0.0163,
+                        ),
                         Text(
                           "Paste or type\nyour notes",
                           style: GoogleFonts.poppins(
@@ -214,29 +245,29 @@ class _MyWidgetState extends State<MyWidget> {
                   ),
                   Expanded(
                     flex: 6,
-                     child: Column(
-                       children: [
-                         Container(
-                           height: width * 0.20,
-                           width: width * 0.63,
-                           child: ClipRRect(
-                             borderRadius: BorderRadius.circular(width * 0.0078),
-                               child: Image.asset(
-                                 "assets/Illustratrion-2.png",
-                                 fit: BoxFit.contain,
-                               ),
-                           ),
-                         ),
-                         SizedBox(height: width * 0.013),
-                         Text(
-                           "Highlight the word to see meanings in the footer",
-                           style: GoogleFonts.poppins(
-                             color: Colors.black,
-                             fontSize: width * 0.0182,
-                           ),
-                         ),
-                       ],
-                     ),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: width * 0.20,
+                          width: width * 0.63,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(width * 0.0078),
+                            child: Image.asset(
+                              "assets/Illustratrion-2.png",
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: width * 0.013),
+                        Text(
+                          "Highlight the word to see meanings in the footer",
+                          style: GoogleFonts.poppins(
+                            color: Colors.black,
+                            fontSize: width * 0.0182,
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 ],
               ),
@@ -253,7 +284,6 @@ class _MyWidgetState extends State<MyWidget> {
                 children: [
                   Text(
                     "How It Works",
-                    
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -267,10 +297,12 @@ class _MyWidgetState extends State<MyWidget> {
                     children: [
                       _buildStepCard(
                           "1", "Paste or type \nyour study \nmaterial", width),
-                      _buildStepCard("2", "Select the \nscientific terms", width),
-                      _buildStepCard("3",
-                          "Click on the \n'Annotate' button.", width),
-                      _buildStepCard("4", "Export/share \nenriched notes", width),
+                      _buildStepCard(
+                          "2", "Select the \nscientific terms", width),
+                      _buildStepCard(
+                          "3", "Click on the \n'Annotate' button.", width),
+                      _buildStepCard(
+                          "4", "Export/share \nenriched notes", width),
                     ],
                   ),
                 ],
@@ -289,7 +321,9 @@ class _MyWidgetState extends State<MyWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: width * 0.0326,),
+                        SizedBox(
+                          height: width * 0.0326,
+                        ),
                         Text(
                           "How Etymology \nEnhances Your Learning?",
                           style: GoogleFonts.poppins(
@@ -308,7 +342,9 @@ class _MyWidgetState extends State<MyWidget> {
                             fontSize: width * 0.014,
                           ),
                         ),
-                        SizedBox(height: width * 0.0846,),
+                        SizedBox(
+                          height: width * 0.0846,
+                        ),
                         //Spacer(),
                         Text(
                           "EtymoNotes is an intelligent platform that helps you \nunderstand complex scientific terms through their",
@@ -324,35 +360,38 @@ class _MyWidgetState extends State<MyWidget> {
                   Expanded(
                     flex: 5,
                     child: Container(
-                           width: width * 0.3288,
-                           height: width * 0.263,
-                           margin: EdgeInsets.only(right: width * 0.0456),
-                           child: ClipRRect(
-                             borderRadius: BorderRadius.circular(width * 0.0078),
-                               child: Image.asset(
-                                 "assets/Illustratrion-3.png",
-                                 fit: BoxFit.contain,
-                               ),
-                           ),
-                         ),
+                      width: width * 0.3288,
+                      height: width * 0.263,
+                      margin: EdgeInsets.only(right: width * 0.0456),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(width * 0.0078),
+                        child: Image.asset(
+                          "assets/Illustratrion-3.png",
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
                   )
                 ],
               ),
             ),
             Container(
-              padding: EdgeInsets.only(left: width * 0.0326, right: width * 0.0911),
-              child: Text("origins. By revealing the roots, prefixes, and historical meanings of words, directly within your notes. It transforms difficult terminology into clear, memorable concepts.",
-              style: GoogleFonts.poppins(
-                            color: Colors.black,
-                            fontSize: width * 0.0156,
-                            // height: 1.5,
-                          ),),
-              
+              padding:
+                  EdgeInsets.only(left: width * 0.0326, right: width * 0.0911),
+              child: Text(
+                "origins. By revealing the roots, prefixes, and historical meanings of words, directly within your notes. It transforms difficult terminology into clear, memorable concepts.",
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: width * 0.0156,
+                  // height: 1.5,
+                ),
+              ),
             ),
             SizedBox(height: width * 0.0651),
             // Who is EtymoNotes for? Section
             Container(
-              padding: EdgeInsets.symmetric(horizontal: width * 0.0326, vertical: width * 0.052),
+              padding: EdgeInsets.symmetric(
+                  horizontal: width * 0.0326, vertical: width * 0.052),
               child: Column(
                 children: [
                   Text(
@@ -404,33 +443,29 @@ class _MyWidgetState extends State<MyWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildCategoryCard(
-                        "Students",
-                        "Build stronger understanding of scientific terms through clear, word-by-word meaning. Improve memory retention and exam readiness with context-based learning",
-                        Image.asset("assets/student.png"),
-                        width * 0.0911,
-                        width
-                      ),
+                          "Students",
+                          "Build stronger understanding of scientific terms through clear, word-by-word meaning. Improve memory retention and exam readiness with context-based learning",
+                          Image.asset("assets/student.png"),
+                          width * 0.0911,
+                          width),
                       _buildCategoryCard(
-                        "Teachers & Educators",
-                        "Enhance classroom learning with annotated notes and word origin explanations. Simplify complex topics using etymological insights.",
-                        Image.asset("assets/teacher.png"),
-                        width * 0.0911,
-                        width
-                      ),
+                          "Teachers & Educators",
+                          "Enhance classroom learning with annotated notes and word origin explanations. Simplify complex topics using etymological insights.",
+                          Image.asset("assets/teacher.png"),
+                          width * 0.0911,
+                          width),
                       _buildCategoryCard(
-                        "Researchers & Professionals",
-                        "Trace the historical and linguistic roots of scientific terminology to strengthen writing, research, and subject clarity.",
-                        Image.asset("assets/profes.png"),
-                        width * 0.0911,
-                        width
-                      ),
+                          "Researchers & Professionals",
+                          "Trace the historical and linguistic roots of scientific terminology to strengthen writing, research, and subject clarity.",
+                          Image.asset("assets/profes.png"),
+                          width * 0.0911,
+                          width),
                       _buildCategoryCard(
-                        "Lifelong Learners",
-                        "For anyone passionate about science, language, and knowledge - uncover the fascinating origins of the words you use every day.",
-                        Image.asset("assets/globe.png"),
-                        width * 0.0911,
-                        width
-                      ),
+                          "Lifelong Learners",
+                          "For anyone passionate about science, language, and knowledge - uncover the fascinating origins of the words you use every day.",
+                          Image.asset("assets/globe.png"),
+                          width * 0.0911,
+                          width),
                     ],
                   ),
                 ],
@@ -463,7 +498,8 @@ class _MyWidgetState extends State<MyWidget> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: width * 0.013),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: width * 0.013),
                           child: TextButton(
                             onPressed: () {},
                             child: Text(
@@ -477,7 +513,8 @@ class _MyWidgetState extends State<MyWidget> {
                         ),
                         SizedBox(width: width * 0.013),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: width * 0.013),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: width * 0.013),
                           child: TextButton(
                             onPressed: () {},
                             child: Text(
@@ -495,15 +532,14 @@ class _MyWidgetState extends State<MyWidget> {
                 ],
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFeatureCard(
-      String title, double w, Image icon, Color textc, Color color, double width) {
+  Widget _buildFeatureCard(String title, double w, Image icon, Color textc,
+      Color color, double width) {
     return Container(
       padding: EdgeInsets.all(width * 0.013),
       height: width * 0.0977,
@@ -584,7 +620,8 @@ class _MyWidgetState extends State<MyWidget> {
     );
   }
 
-  Widget _buildCategoryCard(String title, String description, Image icon,double w, double width) {
+  Widget _buildCategoryCard(
+      String title, String description, Image icon, double w, double width) {
     return Container(
       width: width * 0.2188,
       padding: EdgeInsets.all(width * 0.013),
