@@ -85,6 +85,81 @@ void showSuccessPopup(BuildContext context) {
   );
 }
 
+void showLimitedAccessPopup(BuildContext context) {
+  double width = MediaQuery.of(context).size.width;
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(width * 0.0078)),
+        contentPadding: EdgeInsets.all(0),
+        content: Container(
+          padding: EdgeInsets.all(width * 0.013),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(width * 0.0078),
+              color: const Color(0xFFFF9800)),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: width * 0.0143, vertical: width * 0.013),
+            constraints: BoxConstraints(minHeight: width * 0.0651),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(width * 0.0078), 
+                color: const Color(0xFFFF9800)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: width * 0.0326,
+                  width: width * 0.0326,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromARGB(76, 255, 255, 255)),
+                  child: Icon(Icons.lock_outline,
+                    color: Colors.white,
+                    size: width * 0.0208,
+                  ),
+                ),
+                SizedBox(width: width * 0.0104),
+                Flexible(
+                  child: Text(
+                    "This function is currently not available for you due to limited access",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                      fontSize: width * 0.0163,
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actionsPadding: EdgeInsets.only(bottom: width * 0.013, right: width * 0.013),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.white.withOpacity(0.2),
+              padding: EdgeInsets.symmetric(horizontal: width * 0.0208, vertical: width * 0.0065),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(width * 0.0052),
+              ),
+            ),
+            child: Text(
+              "OK",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: width * 0.0163,
+                color: Colors.white
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 // void notePreviewPopUp(BuildContext context, Map data ) {
 // List keys =data.keys.toList();
 //   showDialog(
@@ -271,9 +346,8 @@ void exportNotesPopUp(BuildContext context, data, String paragraph) {
               
                GestureDetector(
                   onTap: () async {
-                    // await genaratePDF(data);
                     Navigator.pop(context);
-                    showSuccessPopup(context);
+                    showLimitedAccessPopup(context);
                    
                   },
                   child: Container(
@@ -309,9 +383,8 @@ void exportNotesPopUp(BuildContext context, data, String paragraph) {
               
                GestureDetector(
                   onTap: () async {
-                    // await genaratePDF(data);
                     Navigator.pop(context);
-                    showSuccessPopup(context);
+                    showLimitedAccessPopup(context);
                    
                   },
                   child: Container(

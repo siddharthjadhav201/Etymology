@@ -188,8 +188,58 @@ removeDescriptionPopUp(){
     }
   }
 
+  int addHighlight(String word, int start, int end) {
+    if (highlightedWords.contains(word)) {
+      List<int> allStarts = highlightedRanges.map((e) => e.start).toList();
+      if (allStarts.contains(start)) {
+        return 2; // Already highlighted at this position
+      } else {
+        return 2; // Word is highlighted but at different position
+      }
+    }
+    
+    if (highlightedWords.length == 10) {
+      return 1; // Limit reached
+    }
+    
+    highlightedWords.add(word);
+    highlightedRanges.add(HighlightedRange(start, end, word.length, start, word));
+    log("$highlightedWords");
+    notifyListeners();
+    return 0; // Success
+  }
+
+  int removeHighlight(String word, int start, int end) {
+    if (!highlightedWords.contains(word)) {
+      return 2; // Word is not highlighted
+    }
+    
+    List<int> allStarts = highlightedRanges.map((e) => e.start).toList();
+    if (allStarts.contains(start)) {
+      int index = highlightedWords.indexOf(word);
+      highlightedRanges.removeAt(index);
+      highlightedWords.remove(word);
+      log("$highlightedWords");
+      notifyListeners();
+      return 0; // Success
+    } else {
+      return 2; // Word is highlighted but at different position
+    }
+  }
+
   bool isGrammatical(String word) {
-    return _grammaticalWords.contains(word.toLowerCase());
+    // Check if entire word is grammatical
+    if (_grammaticalWords.contains(word.toLowerCase())) {
+      return true;
+    }
+    // For multi-word selections, check if any individual word is grammatical
+    final words = word.trim().split(RegExp(r'\s+'));
+    for (String w in words) {
+      if (_grammaticalWords.contains(w.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   bool isHighlighted(String word) {
