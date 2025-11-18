@@ -16,6 +16,15 @@ bool isSymbol(String char) {
   return !RegExp(r'^[a-zA-Z0-9]$').hasMatch(char);
 }
 
+// Check if text contains 1-2 words (max 1 space)
+bool isValidWordCount(String text) {
+  if (text.isEmpty) return false;
+  // Trim and split by spaces
+  final words = text.trim().split(RegExp(r'\s+'));
+  // Allow 1 or 2 words only
+  return words.length >= 1 && words.length <= 2;
+}
+
 List<List> getFittingText({
   required String text,
   required List<HighlightedRange> highlightedWords,

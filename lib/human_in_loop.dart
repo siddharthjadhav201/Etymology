@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:etymology/pdfHistoryPage.dart';
+import 'package:etymology/string_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -139,35 +140,59 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
     }
   }
 
-  // ---------- SEARCH (exact match endpoint) ----------
+  // ---------- SEARCH (partial match - shows all results) ----------
 
   Future<void> searchWord() async {
     final query = searchController.text.trim();
     if (query.isEmpty) return;
+    
+    // Validate: allow only 1-2 words
+    if (!isValidWordCount(query)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter 1 or 2 words only')),
+      );
+      return;
+    }
 
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      selectedTermIndex = null;
+      selectedTerm = null;
+      meaningController.clear();
+    });
 
     try {
       final dataForChar = await supabase
           .from('tbl_medical_terms')
           .select('id,medical_term,meaning,term_edited')
-          .ilike('medical_term', query);
+          .ilike('medical_term', '%$query%')
+          .order('medical_term', ascending: true);
 
       if (dataForChar.isNotEmpty) {
         setState(() {
-          selectedTerm = dataForChar[0];
-          meaningController.text = dataForChar[0]['meaning'] ?? '';
-          // optionally show the single result in list:
-          terms = [dataForChar[0]];
+          terms = dataForChar;
+          _itemKeys
+            ..clear()
+            ..addAll(List.generate(terms.length, (_) => GlobalKey()));
           currentPage = 1;
           totalPages = 1;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Found ${dataForChar.length} result(s)')),
+        );
       } else {
+        setState(() {
+          terms = [];
+          _itemKeys.clear();
+        });
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Word not found')));
       }
     } catch (e, st) {
       debugPrint('searchWord -> error: $e\n$st');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Search failed')),
+      );
     } finally {
       setState(() => isLoading = false);
     }

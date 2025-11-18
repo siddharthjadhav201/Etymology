@@ -50,12 +50,12 @@ class _NotesEditorState extends State<NotesEditor> {
     highlightProvider.homeScreenContext = context;
     noteController.addListener(() {
       highlightProvider.removeDescriptionPopUp();
-      if (noteController.text.length >= 5000 && !_limitPopupShown) {
+      if (noteController.text.length >= 20000 && !_limitPopupShown) {
         _limitPopupShown = true;
         showCenterPopup(context, "You have reached the character limit.");
       }
 
-      if (noteController.text.length < 5000) {
+      if (noteController.text.length < 20000) {
         _limitPopupShown = false;
       }
     });
@@ -103,7 +103,7 @@ class _NotesEditorState extends State<NotesEditor> {
       final selectedWord = text.substring(start, end).trim().toLowerCase();
 
       if (selectedWord.isEmpty ||
-          selectedWord.contains(" ") ||
+          !isValidWordCount(selectedWord) ||
           containsSymbol(selectedWord)) {
         log(selectedWord);
         log("3");
@@ -115,15 +115,61 @@ class _NotesEditorState extends State<NotesEditor> {
             "⚠️ '$selectedWord' is not a scientific term and cannot be highlighted.");
         return;
       }
-      final success = highlightProvider.toggleHighlight(
+      final success = highlightProvider.addHighlight(
           selectedWord.toLowerCase(), start, end);
       if (success == 1) {
         showCenterPopup(context, "You can highlight up to 10 words only !.");
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text("You can highlight up to 10 words only.")),
-        // );
       } else if (success == 2) {
         showCenterPopup(context, "Selected word is already highlighted !.");
+      }
+    }
+  }
+
+  void _unhighlightSelection() {
+    var highlightProvider = context.read<HighlightProvider>();
+    log("${noteController.selection.start}  ,  ${noteController.selection.end}");
+    final text = noteController.text;
+    if (!noteController.selection.isValid ||
+        noteController.selection.isCollapsed) return;
+    final selection = noteController.selection;
+    int start = 0;
+    int end = 0;
+    start = text[selection.start] == " " || isSymbol(text[selection.start])
+        ? start = selection.start + 1
+        : start = selection.start;
+    end = text[selection.end - 1] == " " || isSymbol(text[selection.end - 1])
+        ? end = selection.end - 1
+        : end = selection.end;
+    if (start > end) {
+      log("1");
+      return;
+    }
+    if (start == 0
+        ? false
+        : isAlphanumeric(text[start - 1])
+            ? true
+            : end == text.length - 1
+                ? false
+                : isAlphanumeric(text[end])) {
+      log("${text.substring(start, end).trim().toLowerCase()}");
+      log(text[end]);
+      log("2");
+      return;
+    } else {
+      final selectedWord = text.substring(start, end).trim().toLowerCase();
+
+      if (selectedWord.isEmpty ||
+          !isValidWordCount(selectedWord) ||
+          containsSymbol(selectedWord)) {
+        log(selectedWord);
+        log("3");
+        return;
+      }
+
+      final success = highlightProvider.removeHighlight(
+          selectedWord.toLowerCase(), start, end);
+      if (success == 2) {
+        showCenterPopup(context, "Selected word is not highlighted !.");
       }
     }
   }
@@ -225,11 +271,11 @@ class _NotesEditorState extends State<NotesEditor> {
                           child: RichText(
                             text: TextSpan(
                               style: GoogleFonts.poppins(
-                                  fontSize: width * 0.0138,
+                                  fontSize: width * 0.012,
                                   color: Colors.black),
                               children: [
                                 TextSpan(
-                                    text: 'Paste your study notes and click '),
+                                    text: 'Type or Copy Paste your study notes and click '),
                                 TextSpan(
                                   text: '‘Annotate’',
                                   style: GoogleFonts.poppins(
@@ -257,8 +303,12 @@ class _NotesEditorState extends State<NotesEditor> {
                       SizedBox(width: width * 0.014),
                       buildButtonWithIcon("Highlight", width * 0.125,
                           "assets/brush-square.png", _highlightSelection),
+                      SizedBox(width: width * 0.014),
+                      buildButtonWithIcon("Unhighlight", width * 0.145,
+                          "assets/brush-square.png", _unhighlightSelection),
                       Spacer(),
                       buildButton("Clear All", width * 0.1, () {
+                        noteController.clear();
                         highlightProvider.clear();
                       }),
                       // SizedBox(width: width * 0.0194),
@@ -292,69 +342,100 @@ class _NotesEditorState extends State<NotesEditor> {
                         controller: noteController,
                         expands: true,
                         maxLines: null,
-                        maxLength: 5000,
+                        maxLength: 20000,
                         specialTextSpanBuilder: HighlightSpanBuilder(
                             highlightProvider, context, noteController),
                         decoration: InputDecoration.collapsed(
-                            hintText: "Type and select words to highlight"),
+                            hintText: "Type or copy paste the text and select words to highlight"),
                       ),
                     ),
                   ),
                   SizedBox(
                     height: width * 0.018,
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector( 
-                      onTap: () async {
-                        if(highlightProvider.highlightedWords.isNotEmpty){
-                          highlightProvider.removeDescriptionPopUp();
-                        if (noteController.text.isNotEmpty) {
-                          highlightProvider.setAnnotatedStatus(true);
-                          await annotate(context);
-                          // await fetchMedicalTerms(highlightProvider);
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            final ctx = _annotationKey.currentContext;
-                            if (ctx != null) {
-                              Scrollable.ensureVisible(
-                                ctx,
-                                duration: Duration(milliseconds: 500),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          });
-                        }
-                        }
-                        
-                      },
-                      child: Container(
-                        height: width * 0.034,
-                        width: width * 0.17,
-                        decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 54, 59, 186),
-                            borderRadius: BorderRadius.circular(8),
-                            // color: Color.fromARGB(1, 255, 255, 255),
-                            border: Border.all(
-                              width: 1,
-                              color: Color.fromARGB(255, 166, 166, 166),
-                            )),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset("assets/magicpen.png",
-                                height: width * 0.017, width: width * 0.017),
-                            SizedBox(width: width * 0.0042),
-                            Text(
-                              "Annotate",
-                              style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: width * 0.014,
-                                  color: Colors.white),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      highlightProvider.isAnnotated
+                          ? buildButtonWithIcon(
+                              "Edit Note ", width * 0.131, "assets/edit.png",
+                              () {
+                            highlightProvider.setAnnotatedStatus(false);
+                          })
+                          : SizedBox(),
+                      Spacer(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          GestureDetector( 
+                            onTap: () async {
+                              if(highlightProvider.highlightedWords.isNotEmpty){
+                                highlightProvider.removeDescriptionPopUp();
+                              if (noteController.text.isNotEmpty) {
+                                highlightProvider.setAnnotatedStatus(true);
+                                await annotate(context);
+                                // await fetchMedicalTerms(highlightProvider);
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  final ctx = _annotationKey.currentContext;
+                                  if (ctx != null) {
+                                    Scrollable.ensureVisible(
+                                      ctx,
+                                      duration: Duration(milliseconds: 500),
+                                      curve: Curves.easeInOut,
+                                    );
+                                  }
+                                });
+                              }
+                              }
+                              
+                            },
+                            child: Container(
+                              height: width * 0.034,
+                              width: width * 0.17,
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 54, 59, 186),
+                                  borderRadius: BorderRadius.circular(8),
+                                  // color: Color.fromARGB(1, 255, 255, 255),
+                                  border: Border.all(
+                                    width: 1,
+                                    color: Color.fromARGB(255, 166, 166, 166),
+                                  )),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset("assets/magicpen.png",
+                                      height: width * 0.017, width: width * 0.017),
+                                  SizedBox(width: width * 0.0042),
+                                  Text(
+                                    "Annotate",
+                                    style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: width * 0.014,
+                                        color: Colors.white),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
+                          ),
+                          // SizedBox(height: width * 0.018),
+                          // highlightProvider.isAnnotated
+                          //     ? buildButtonWithIcon(
+                          //         "Export",
+                          //         width * 0.13,
+                          //         "assets/export.png",
+                          //         () {
+                          //           if (noteController.text.isNotEmpty) {
+                          //             exportNotesPopUp(
+                          //                 context,
+                          //                 highlightProvider.highlightWordsData,
+                          //                 noteController.text);
+                          //           }
+                          //         },
+                          //       )
+                             // : SizedBox(),
+                        ],
                       ),
-                    ),
+                    ],
                   ),
                   SizedBox(
                     height: width * 0.018,
@@ -411,9 +492,8 @@ class _NotesEditorState extends State<NotesEditor> {
                     height: width * 0.021,
                   ),
 
-                  highlightProvider.highlightWordsData.isEmpty
-                      ? SizedBox()
-                      : Row(
+                  (highlightProvider.isAnnotated && !highlightProvider.highlightWordsData.isEmpty)
+                      ? Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             buildButtonWithIcon(
@@ -435,7 +515,8 @@ class _NotesEditorState extends State<NotesEditor> {
                               },
                             )
                           ],
-                        ),
+                        )
+                      : SizedBox(),
 
                   SizedBox(
                     height: 0.0138,
