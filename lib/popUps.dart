@@ -134,12 +134,12 @@ void showLimitedAccessPopup(BuildContext context) {
             ),
           ),
         ),
-        actionsPadding: EdgeInsets.only(bottom: width * 0.013, right: width * 0.013),
+        actionsPadding: EdgeInsets.only(bottom: width * 0.01, right: width * 0.013, top: width * 0.01),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             style: TextButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.2),
+              backgroundColor: Colors.white,
               padding: EdgeInsets.symmetric(horizontal: width * 0.0208, vertical: width * 0.0065),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(width * 0.0052),
@@ -150,7 +150,7 @@ void showLimitedAccessPopup(BuildContext context) {
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w500,
                 fontSize: width * 0.0163,
-                color: Colors.white
+                color: Colors.black
               ),
             ),
           ),

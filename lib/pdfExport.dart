@@ -66,6 +66,7 @@ pd.Container wordData(data){
   if(data==null){
     return pd.Container();
   }else{
+    String meaning = data["meaning"] ?? "Information currently unavailable";
      return pd.Container(
       decoration: pd.BoxDecoration(
         // border: pd.Border.all()
@@ -82,7 +83,7 @@ pd.Container wordData(data){
       style: pd.TextStyle(
         fontSize:9,
         fontWeight: pd.FontWeight.bold),),
-        pd.SizedBox(width: PdfPageFormat.a4.width-100.toInt(), child: pd.Text("${data["meaning"]}",style: textStyle),),
+        pd.SizedBox(width: PdfPageFormat.a4.width-100.toInt(), child: pd.Text(meaning,style: textStyle),),
       
       // pd.Text("origin : ${data["origin"]}",style: textStyle),
       // pd.Text("prefix : ${data["prefix"]}",style: textStyle),
@@ -138,7 +139,7 @@ Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map 
               child: pd.Column(
                 children: List.generate(item[1].length, (index){
                   // return pd.Text(item[1][index].word);
-                  return wordData(highlightWordsData[item[1][index].word]??{"medical_term":item[1][index].word,"description":"-------------","origin":"-----------","prefix":"------","suffix":"------"});
+                  return wordData(highlightWordsData[item[1][index].word]??{"medical_term":item[1][index].word,"meaning":"Information currently unavailable","origin":"-----------","prefix":"------","suffix":"------"});
                 })
               ),
             )

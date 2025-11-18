@@ -119,10 +119,34 @@ Future<void> annotate(BuildContext context) async {
 
 Future<Map> getWordData(List words)async{
   List response= await getDataFromDatabase(words);
+  Map wordData = response[0];
+  List wordNotInDatabase = response[1];
 
   /// get data for remaining words from AI
 
-  return response[0];
+  // Add entries for words not in database
+  for(String word in wordNotInDatabase){
+    wordData[word.toLowerCase()] = {
+      "medical_term": word,
+      "meaning": "Information currently unavailable"
+    };
+  }
+  
+  // Check for words with null meanings and update them
+  for(String word in words){
+    String wordKey = word.toLowerCase();
+    if(wordData.containsKey(wordKey)){
+      dynamic wordInfo = wordData[wordKey];
+      if(wordInfo is Map && (wordInfo["meaning"] == null || wordInfo["meaning"].toString().isEmpty)){
+        wordData[wordKey] = {
+          "medical_term": wordInfo["medical_term"] ?? word,
+          "meaning": "Information currently unavailable"
+        };
+      }
+    }
+  }
+
+  return wordData;
 
 }
 

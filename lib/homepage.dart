@@ -471,7 +471,7 @@ class _NotesEditorState extends State<NotesEditor> {
                                           fontWeight: FontWeight.w900),
                                     ),
                                     Text(
-                                        "${highlightProvider.highlightWordsData[keys[index]]["meaning"]}"
+                                        "${highlightProvider.highlightWordsData[keys[index]]["meaning"] ?? "Information currently unavailable"}"
                                         ),
                                     // Text(
                                     //     "origin : ${highlightProvider.highlightWordsData[keys[index]]["origin"]}"),
