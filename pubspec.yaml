@@ -41,6 +41,8 @@ flutter:
     - assets/magicpen.png
     - assets/Logo.png
     - assets/MultipleEtymoSearch.json
+    - assets/WordList.csv
+    - assets/WordList1.csv
     - assets/Svg/
     - assets/fonts/NotoSans-Regular-Font.ttf
     - assets/edit.png
@@ -60,6 +62,18 @@ flutter:
     - assets/teacher.png
     - assets/Vector_download.png
     - assets/Icon_annotion.png
+    - assets/anatomy.png
+    - assets/botany.png
+    - assets/cell_biology.png
+    - assets/heart_anatomy.png
+    - assets/inflammation.png
+    - assets/skin_histrology.png
+    - assets/Introduction to Animal Eye Anatomy.pdf
+    - assets/Introduction to Botany.pdf
+    - assets/Fundamental Concepts in Cell Biology.pdf
+    - assets/Introduction to Heart Anatomy and Physiology.pdf
+    - assets/Introduction to Inflammation and repair.pdf
+    - assets/Introduction to Skin Histology.pdf
   fonts:
     - family: NotoSans
       fonts:
