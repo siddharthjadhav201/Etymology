@@ -32,31 +32,46 @@ TextSpan build(String data, {TextStyle? textStyle, onTap}) {
         backgroundColor: null,
       ),
     ));
-    children.add(TextSpan(
-      recognizer: TapGestureRecognizer()
-    ..onTapDown = (details) {
-      tapHandler.handleTapDown(
-        details: details,
-        onSingleTap: () {
-          Map info= highlightProvider.highlightWordsData[data.substring(highlightedWordsLocation.start,highlightedWordsLocation.end).toLowerCase()]??{"word":"Loading..."};
-          print(" Single Tap Detected at ${details.globalPosition}");
-          // showPopupAtFixedPosition(context,details.globalPosition,info);
-          //  OverlayManager().showOverlay(context: context, position:details.globalPosition, info: info);
-          highlightProvider.insertDescriptionPopUp(context,details.globalPosition,info);
+    
+    final String word = data.substring(highlightedWordsLocation.start,highlightedWordsLocation.end).toLowerCase();
+    final bool isAnnotated = highlightProvider.isAnnotated;
+    
+    // Only add tap recognizer (which shows hand cursor) if annotation has been done
+    if (isAnnotated) {
+      children.add(TextSpan(
+        recognizer: TapGestureRecognizer()
+        ..onTapDown = (details) {
+          tapHandler.handleTapDown(
+            details: details,
+            onSingleTap: () {
+              Map<String, dynamic> info = highlightProvider.highlightWordsData[word] ?? {
+                "medical_term": word,
+                "meaning": "Information currently unavailable"
+              };
+              print(" Single Tap Detected at ${details.globalPosition}");
+              highlightProvider.insertDescriptionPopUp(context,details.globalPosition,info);
+            },
+            onDoubleTap: () async{
+              print(" Double Tap Detected at ${details.globalPosition}");
+              await highlightProvider.changeEditorFocusState;
+              controller.selection=TextSelection(baseOffset: highlightedWordsLocation.start, extentOffset: highlightedWordsLocation.end);
+            },
+          );
         },
-        onDoubleTap: () async{
-          print(" Double Tap Detected at ${details.globalPosition}");
-         await highlightProvider.changeEditorFocusState;
-          controller.selection=TextSelection(baseOffset: highlightedWordsLocation.start, extentOffset: highlightedWordsLocation.end);
-        },
-      );
-    },
-      text: data.substring(highlightedWordsLocation.start,highlightedWordsLocation.end),
-      style: textStyle?.copyWith(
-            backgroundColor: Colors.yellow.withAlpha(128),
-          ),
-    ),
-    );
+        text: data.substring(highlightedWordsLocation.start,highlightedWordsLocation.end),
+        style: textStyle?.copyWith(
+              backgroundColor: Colors.yellow.withAlpha(128),
+            ),
+      ));
+    } else {
+      // Before annotation: no tap recognizer, no hand cursor
+      children.add(TextSpan(
+        text: data.substring(highlightedWordsLocation.start,highlightedWordsLocation.end),
+        style: textStyle?.copyWith(
+              backgroundColor: Colors.yellow.withAlpha(128),
+            ),
+      ));
+    }
     globalStart=highlightedWordsLocation.end;
   }
   children.add(TextSpan(

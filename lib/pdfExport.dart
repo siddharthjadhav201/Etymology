@@ -28,6 +28,10 @@ List<pd.InlineSpan> paragraphColumn(item,pd.Font ttf){
   );
   try{
   String data=item[0];
+  // Normalize the text to ensure proper encoding
+  data = data.replaceAll('\u201C', '"').replaceAll('\u201D', '"')
+              .replaceAll('\u2018', "'").replaceAll('\u2019', "'")
+              .replaceAll('\u2013', '-').replaceAll('\u2014', '--');
   int startPosition=item[3];
   List highlightedWordsLocations=item[1];
   List<pd.InlineSpan> children=[];
@@ -57,9 +61,15 @@ return children;
   }
 }
 
-pd.Container wordData(data){
+pd.Container wordData(data, pd.Font ttf){
   pd.TextStyle textStyle =pd.TextStyle(
+    font: ttf,
     fontSize: 8,
+  );
+  pd.TextStyle boldTextStyle =pd.TextStyle(
+    font: ttf,
+    fontSize: 9,
+    fontWeight: pd.FontWeight.bold,
   );
 
   log("####$data");
@@ -67,6 +77,14 @@ pd.Container wordData(data){
     return pd.Container();
   }else{
     String meaning = data["meaning"] ?? "Information currently unavailable";
+    // Normalize special characters in meaning text
+    meaning = meaning.replaceAll('\u201C', '"').replaceAll('\u201D', '"')
+                     .replaceAll('\u2018', "'").replaceAll('\u2019', "'")
+                     .replaceAll('\u2013', '-').replaceAll('\u2014', '--');
+    String medicalTerm = data["medical_term"] ?? "";
+    medicalTerm = medicalTerm.replaceAll('\u201C', '"').replaceAll('\u201D', '"')
+                             .replaceAll('\u2018', "'").replaceAll('\u2019', "'")
+                             .replaceAll('\u2013', '-').replaceAll('\u2014', '--');
      return pd.Container(
       decoration: pd.BoxDecoration(
         // border: pd.Border.all()
@@ -79,10 +97,7 @@ pd.Container wordData(data){
         pd.Column(
     crossAxisAlignment: pd.CrossAxisAlignment.start,
     children: [
-      pd.Text("${data["medical_term"]}",
-      style: pd.TextStyle(
-        fontSize:9,
-        fontWeight: pd.FontWeight.bold),),
+      pd.Text(medicalTerm, style: boldTextStyle),
         pd.SizedBox(width: PdfPageFormat.a4.width-100.toInt(), child: pd.Text(meaning,style: textStyle),),
       
       // pd.Text("origin : ${data["origin"]}",style: textStyle),
@@ -99,13 +114,14 @@ Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map 
   print(highlightWordsData);
   final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular-Font.ttf');
   final ttf = pd.Font.ttf(fontData);
-  final pdf =pd.Document();
-    // theme: pd.ThemeData.withFont(
-    //   base: ttf,
-    //   bold: ttf,
-    //   italic: ttf,
-    //   boldItalic: ttf,
-    // ),);
+  final pdf =pd.Document(
+    theme: pd.ThemeData.withFont(
+      base: ttf,
+      bold: ttf,
+      italic: ttf,
+      boldItalic: ttf,
+    ),
+  );
     pdf.addPage(
     pd.MultiPage(
       margin:pd.EdgeInsets.only(left: 50,right: 50,top:50,bottom: 0),
@@ -113,7 +129,7 @@ Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map 
       // margin: pd.EdgeInsets.all(20),
       build: (context){
         log("width a4 : ${PdfPageFormat.a4.width-100}");
-        List<List> subParagraph=getFittingText1(text:paragraph,highlightedWords:highlightedWords,width:PdfPageFormat.a4.width-100);
+        List<List> subParagraph=getFittingText1(text:paragraph,highlightedWords:highlightedWords,width:PdfPageFormat.a4.width-180);
         List<pd.Widget> widgets = [];
         for(List item in subParagraph){
           widgets.add(
@@ -139,7 +155,7 @@ Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map 
               child: pd.Column(
                 children: List.generate(item[1].length, (index){
                   // return pd.Text(item[1][index].word);
-                  return wordData(highlightWordsData[item[1][index].word]??{"medical_term":item[1][index].word,"meaning":"Information currently unavailable","origin":"-----------","prefix":"------","suffix":"------"});
+                  return wordData(highlightWordsData[item[1][index].word]??{"medical_term":item[1][index].word,"meaning":"Information currently unavailable","origin":"-----------","prefix":"------","suffix":"------"}, ttf);
                 })
               ),
             )

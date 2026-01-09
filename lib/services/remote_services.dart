@@ -1,5 +1,4 @@
 
-import "dart:convert";
 import "dart:developer";
 import "package:etymology/popUps.dart";
 import "package:etymology/providers.dart";
@@ -264,5 +263,222 @@ Future<String?> uploadPdfToSupabase(Uint8List bytes) async {
   } catch (e) {
     print(' Upload failed: $e');
     return null;
+  }
+}
+
+/// Parses a CSV line handling quoted fields with commas
+List<String> _parseCsvLine(String line) {
+  List<String> fields = [];
+  StringBuffer currentField = StringBuffer();
+  bool inQuotes = false;
+  
+  for (int i = 0; i < line.length; i++) {
+    String char = line[i];
+    
+    if (char == '"') {
+      if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+        // Escaped quote
+        currentField.write('"');
+        i++; // Skip next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char == ',' && !inQuotes) {
+      // Field separator
+      fields.add(currentField.toString().trim());
+      currentField.clear();
+    } else {
+      currentField.write(char);
+    }
+  }
+  
+  // Add last field
+  fields.add(currentField.toString().trim());
+  return fields;
+}
+
+/// Imports medical terms from WordList.csv into tbl_medical_terms
+/// Updates existing terms' meanings, inserts new terms
+Future<Map<String, int>> importMedicalTermsFromCsv() async {
+  final supabase = Supabase.instance.client;
+  int inserted = 0;
+  int updated = 0;
+  int errors = 0;
+  
+  try {
+    // Read CSV file from assets
+    final String csvContent = await rootBundle.loadString('assets/WordList1.csv');
+    final List<String> lines = csvContent.split('\n');
+    
+    if (lines.isEmpty) {
+      log('CSV file is empty');
+      return {'inserted': 0, 'updated': 0, 'errors': 0};
+    }
+    
+    // Skip header row
+    final List<String> dataLines = lines.skip(1).where((line) => line.trim().isNotEmpty).toList();
+    
+    log('Processing ${dataLines.length} rows from CSV');
+    
+    // Process in batches for better performance
+    const int batchSize = 50;
+    for (int i = 0; i < dataLines.length; i += batchSize) {
+      final List<String> batch = dataLines.skip(i).take(batchSize).toList();
+      final List<Map<String, String>> records = [];
+      
+      for (String line in batch) {
+        try {
+          final List<String> fields = _parseCsvLine(line);
+          if (fields.length >= 2) {
+            final String medicalTerm = fields[0].trim();
+            final String meaning = fields[1].trim();
+            
+            if (medicalTerm.isNotEmpty && meaning.isNotEmpty) {
+              records.add({
+                'medical_term': medicalTerm,
+                'meaning': meaning,
+              });
+            }
+          }
+        } catch (e) {
+          log('Error parsing line: $line - $e');
+          errors++;
+        }
+      }
+      
+      if (records.isEmpty) continue;
+      
+      // Process each record individually for upsert
+      for (final record in records) {
+        final String medicalTerm = record['medical_term']!;
+        final String meaning = record['meaning']!;
+        
+        try {
+          // Check if term exists (allowing for potential duplicates without throwing)
+          final List<dynamic> existing = await supabase
+              .from('tbl_medical_terms')
+              .select('id')
+              .eq('medical_term', medicalTerm)
+              .limit(1);
+
+          if (existing.isNotEmpty) {
+            // Update existing
+            await supabase
+                .from('tbl_medical_terms')
+                .update({'meaning': meaning})
+                .eq('medical_term', medicalTerm);
+            updated++;
+          } else {
+            // Insert new
+            await supabase
+                .from('tbl_medical_terms')
+                .insert({
+                  'medical_term': medicalTerm,
+                  'meaning': meaning,
+                });
+            inserted++;
+          }
+        } catch (e) {
+          log('Error processing ${record['medical_term']}: $e');
+          errors++;
+        }
+      }
+    }
+    
+    log('Import complete: $inserted inserted, $updated updated, $errors errors');
+    return {
+      'inserted': inserted,
+      'updated': updated,
+      'errors': errors,
+    };
+  } catch (e, stackTrace) {
+    log('Error importing CSV: $e\n$stackTrace');
+    return {
+      'inserted': inserted,
+      'updated': updated,
+      'errors': errors + 1,
+    };
+  }
+}
+
+/// Verifies how many terms from CSV exist in database
+Future<Map<String, dynamic>> verifyCsvImportStatus() async {
+  final supabase = Supabase.instance.client;
+  
+  try {
+    // Read CSV to get all terms
+    final String csvContent = await rootBundle.loadString('assets/WordList1.csv');
+    final List<String> lines = csvContent.split('\n');
+    final List<String> dataLines = lines.skip(1).where((line) => line.trim().isNotEmpty).toList();
+    
+    final Set<String> csvTerms = {};
+    for (String line in dataLines) {
+      try {
+        final List<String> fields = _parseCsvLine(line);
+        if (fields.isNotEmpty) {
+          csvTerms.add(fields[0].trim().toLowerCase());
+        }
+      } catch (e) {
+        // Skip invalid lines
+      }
+    }
+    
+    // Get total count in database
+    final totalInDbResponse = await supabase
+        .from('tbl_medical_terms')
+        .select('id')
+        .count(CountOption.exact);
+    
+    // Check how many CSV terms exist in DB
+    int foundCount = 0;
+    int notFoundCount = 0;
+    final List<String> notFoundTerms = [];
+    
+    // Check in batches
+    const int batchSize = 100;
+    final List<String> csvTermsList = csvTerms.toList();
+    
+    for (int i = 0; i < csvTermsList.length; i += batchSize) {
+      final List<String> batch = csvTermsList.skip(i).take(batchSize).toList();
+      final filter = batch.map((term) => 'medical_term.ilike.$term').join(',');
+      
+      try {
+        final existing = await supabase
+            .from('tbl_medical_terms')
+            .select('medical_term')
+            .or(filter);
+        
+        final Set<String> found = existing
+            .map((e) => (e['medical_term'] as String).toLowerCase())
+            .toSet();
+        
+        for (String term in batch) {
+          if (found.contains(term)) {
+            foundCount++;
+          } else {
+            notFoundCount++;
+            if (notFoundTerms.length < 10) {
+              notFoundTerms.add(term);
+            }
+          }
+        }
+      } catch (e) {
+        log('Error checking batch: $e');
+      }
+    }
+    
+    return {
+      'csvTotal': csvTerms.length,
+      'dbTotal': totalInDbResponse.count,
+      'foundInDb': foundCount,
+      'notFoundInDb': notFoundCount,
+      'sampleNotFound': notFoundTerms,
+    };
+  } catch (e, stackTrace) {
+    log('Error verifying import: $e\n$stackTrace');
+    return {
+      'error': e.toString(),
+    };
   }
 }

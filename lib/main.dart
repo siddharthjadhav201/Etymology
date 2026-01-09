@@ -9,12 +9,18 @@ import "package:provider/provider.dart";
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'homepage.dart';
 import 'main_page.dart';
+// to run CSV import 
+ //import 'package:etymology/import_csv_test.dart';
+
 void main() async{
  WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: "https://ynysnloiyrfkqcjalsrl.supabase.co",
     anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueXNubG9peXJma3FjamFsc3JsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NjU0MDEsImV4cCI6MjA2NjM0MTQwMX0.sy5nOpnQrwzMVUSPci8tLsoALPZS7zn2--Rx1e6pa7s",
   );
+
+  // CSV import 
+   //await runCsvImport();
 
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => HighlightProvider()),

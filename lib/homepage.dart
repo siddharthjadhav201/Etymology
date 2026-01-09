@@ -327,27 +327,53 @@ class _NotesEditorState extends State<NotesEditor> {
                           color: Color.fromARGB(255, 166, 166, 166),
                         )),
                     alignment: Alignment.topLeft,
-                    child: TextSelectionTheme(
-                      data: TextSelectionThemeData(
-                        selectionColor: Colors.blue,
-                      ),
-                      child: ExtendedTextField(
-                        scrollController: noteScrollController,
-                        autofocus: highlightProvider.editorFocusState,
-                        style: TextStyle(fontSize: 15),
-                        inputFormatters: [
-                          HighlightBlockFormatter(
-                              highlightProvider.highlightedRanges, context)
-                        ],
-                        controller: noteController,
-                        expands: true,
-                        maxLines: null,
-                        maxLength: 20000,
-                        specialTextSpanBuilder: HighlightSpanBuilder(
-                            highlightProvider, context, noteController),
-                        decoration: InputDecoration.collapsed(
-                            hintText: "Type or copy paste the text and select words to highlight"),
-                      ),
+                    child: Stack(
+                      children: [
+                        // Hidden text layer for browser search (Ctrl+F) functionality
+                        // This makes the text searchable by browsers while keeping the visual highlighting
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Opacity(
+                              opacity: 0.01, // Very low opacity but not 0 to ensure it's in DOM
+                              child: ValueListenableBuilder<TextEditingValue>(
+                                valueListenable: noteController,
+                                builder: (context, value, child) {
+                                  return SelectableText(
+                                    value.text,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      height: 1.5, // Match line height if needed
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Visible text field with highlighting
+                        TextSelectionTheme(
+                          data: TextSelectionThemeData(
+                            selectionColor: Colors.blue,
+                          ),
+                          child: ExtendedTextField(
+                            scrollController: noteScrollController,
+                            autofocus: highlightProvider.editorFocusState,
+                            style: TextStyle(fontSize: 15),
+                            inputFormatters: [
+                              HighlightBlockFormatter(
+                                  highlightProvider.highlightedRanges, context)
+                            ],
+                            controller: noteController,
+                            expands: true,
+                            maxLines: null,
+                            maxLength: 20000,
+                            specialTextSpanBuilder: HighlightSpanBuilder(
+                                highlightProvider, context, noteController),
+                            decoration: InputDecoration.collapsed(
+                                hintText: "Type or copy paste the text and select words to highlight"),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(

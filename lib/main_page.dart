@@ -1,4 +1,5 @@
 import 'package:etymology/navbar.dart';
+import 'package:etymology/sample_notes_page.dart';
 import 'package:etymology/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -118,21 +119,29 @@ class _MyWidgetState extends State<MyWidget> {
                                 ),
                               ),
                               SizedBox(width: width * 0.0104),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.0156,
-                                    vertical: width * 0.0078),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFFFD700),
-                                  borderRadius:
-                                      BorderRadius.circular(width * 0.0052),
-                                ),
-                                child: Text(
-                                  "Explore Sample Note",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: width * 0.0104,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const SampleNotesPage()),
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: width * 0.0156,
+                                      vertical: width * 0.0078),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFFFD700),
+                                    borderRadius:
+                                        BorderRadius.circular(width * 0.0052),
+                                  ),
+                                  child: Text(
+                                    "Explore Sample Note",
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: width * 0.0104,
+                                    ),
                                   ),
                                 ),
                               ),

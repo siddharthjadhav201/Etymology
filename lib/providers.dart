@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:etymology/highlight_block_formatter.dart';
-import 'package:etymology/popUps.dart';
 import 'package:flutter/material.dart';
 
 class LoginProvider extends ChangeNotifier{
@@ -76,7 +75,9 @@ removeDescriptionPopUp(){
           
                 // Description (Term_Des)
                 Text(
-                  info['meaning'].substring(0,110)+'...' ?? '',
+                  (info['meaning'] != null && info['meaning'].toString().length > 110)
+                      ? info['meaning'].toString().substring(0,110)+'...'
+                      : (info['meaning'] ?? ''),
                   style: TextStyle(fontSize: 10),
                 ),
           
