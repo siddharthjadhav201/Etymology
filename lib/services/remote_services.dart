@@ -119,7 +119,7 @@ Future<void> annotate(BuildContext context) async {
 
 Future<Map> getWordData(List words)async{
   List response= await getDataFromDatabase(words);
-  Map wordData = response[0];
+  Map<dynamic,dynamic> wordData = response[0];
   List wordNotInDatabase = response[1];
 
   /// get data for remaining words from AI

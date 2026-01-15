@@ -113,7 +113,7 @@ Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map 
       // margin: pd.EdgeInsets.all(20),
       build: (context){
         log("width a4 : ${PdfPageFormat.a4.width-100}");
-        List<List> subParagraph=getFittingText1(text:paragraph,highlightedWords:highlightedWords,width:PdfPageFormat.a4.width-100);
+        List<List> subParagraph=getFittingText1(text:paragraph,highlightedWords:highlightedWords,width:PdfPageFormat.a4.width-180);
         List<pd.Widget> widgets = [];
         for(List item in subParagraph){
           widgets.add(

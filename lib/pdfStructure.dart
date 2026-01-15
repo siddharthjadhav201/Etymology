@@ -1,8 +1,11 @@
 import 'dart:developer';
-
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:etymology/highlight_block_formatter.dart';
 import 'package:etymology/string_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
 
 List<List> getFittingText1(
     {required String text,
@@ -58,14 +61,15 @@ int getCharSizeForContainer(double height, String text, double maxWidth) {
   );
   try {
     final TextStyle style = TextStyle(
-  fontSize: 12,
-  letterSpacing: -0.02,
-  // fontWeight: FontWeight.w900, // equivalent to pw.FontWeight.normal
-  wordSpacing: 1.5,
-  height: 1.3,
-  fontFamily: "NotoSans",
-  fontWeight: FontWeight.normal// approximated line spacing to line height ratio // required if used outside Material widgets
-); 
+        fontSize: 12,
+        letterSpacing: -0.02,
+        // fontWeight: FontWeight.w900, // equivalent to pw.FontWeight.normal
+        wordSpacing: 1.5,
+        height: 1.3,
+        fontFamily: "NotoSans",
+        fontWeight: FontWeight
+            .normal // approximated line spacing to line height ratio // required if used outside Material widgets
+        );
     int start = 0;
     int end = text.length;
     int currentResult = 0;
@@ -128,12 +132,11 @@ Map? getDataForSinglePage(
           log("$currentResult");
           return {
             "wordIndex": wordIndex + count,
-            "text": text.substring(globalResult,
-                highlightedRanges[wordIndex + count].start - 1),
+            "text": text.substring(
+                globalResult, highlightedRanges[wordIndex + count].start - 1),
             "highlightedWords": highlightedWordsInPara,
             "height": availableHeight[index],
-            "globalResult":
-                highlightedRanges[wordIndex + count].start - 1
+            "globalResult": highlightedRanges[wordIndex + count].start - 1
           };
           // break;
         }

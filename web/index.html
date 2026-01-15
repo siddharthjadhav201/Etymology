@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -27,12 +28,593 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>etymology</title>
   <link rel="manifest" href="manifest.json">
 </head>
+
 <body>
+  <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.js"></script>
+
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script>
+
+    function wrapText(ctx, text, maxWidth) {
+      const words = text.split(" ");
+      const lines = [];
+      let currentLine = "";
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = currentLine + words[i] + " ";
+        const width = ctx.measureText(testLine).width;
+
+        if (width > maxWidth && currentLine !== "") {
+          lines.push(currentLine.trim());
+          currentLine = words[i] + " ";
+        } else {
+          currentLine = testLine;
+        }
+      }
+
+      if (currentLine) {
+        lines.push(currentLine.trim());
+      }
+
+      return lines;
+    }
+
+    function getCharSizeForContainer(maxLineCount, text, maxWidth, font, fontSize) {
+      console.log(`maxlinecount : ${maxLineCount}, maxwidth : ${maxWidth}`)
+      let CharCount = 0;
+      let currentLineCount = 0;
+      let cursorX = 0;
+      let currentWordWidth = 0;
+      const allLines = text.split("\n");
+      let isFirst = true;
+      for (const newLine of allLines) {
+        if (!isFirst) {
+          currentLineCount++;
+          cursorX = 0;
+          CharCount++;
+        }
+        if (currentLineCount > maxLineCount) {
+          console.log(`currentLine : ${currentLineCount}`);
+          return CharCount;
+        }
+
+        isFirst = false;
+        const tokens = newLine.match(/\S+|\s+/g) || [];
+        // const words = newLine.split(/\s+/);
+        for (const word of tokens) {
+          currentWordWidth = font.widthOfTextAtSize(`${word}`, fontSize);
+          // console.log("currentWordWidth= " + currentWordWidth);
+          if (cursorX + currentWordWidth > maxWidth) {
+            console.log(`currentCursorX : ${cursorX}`)
+            cursorX = 0;
+            currentLineCount++;
+            console.log(`first word of line : ${word}`);
+            console.log("currentWordWidth= " + currentWordWidth);
+            if (currentLineCount > maxLineCount) {
+              console.log(`currentLine : ${currentLineCount}`);
+              return CharCount;
+            }
+          }
+          CharCount += word.length;
+          cursorX += currentWordWidth;
+
+        }
+      }
+      console.log(`currentLine : ${currentLineCount}`);
+      return CharCount;
+    }
+
+    function isAlphanumeric(char) {
+      return /^[a-z0-9]$/i.test(char);
+
+
+    }
+
+    // const measureDiv = document.createElement("div");
+    // measureDiv.style.position = "absolute";
+    // measureDiv.style.visibility = "hidden";
+    // measureDiv.style.whiteSpace = "pre-wrap";
+    // measureDiv.style.wordBreak = "break-word";
+    // measureDiv.style.boxSizing = "border-box";
+
+    // // MATCH FLUTTER TEXTSTYLE
+    // measureDiv.style.fontFamily = "NotoSans";
+    // measureDiv.style.fontSize = "12px";
+    // measureDiv.style.lineHeight = "1.3";
+    // measureDiv.style.letterSpacing = "-0.02px";
+    // measureDiv.style.wordSpacing = "1.5px";
+
+    // document.body.appendChild(measureDiv);
+
+    // function getCharSizeForContainerAccurate(height, text, width) {
+    //   measureDiv.style.width = `${width}px`;
+
+    //   let start = 0;
+    //   let end = text.length;
+    //   let result = 0;
+
+    //   while (start <= end) {
+    //     const mid = (start + end) >> 1;
+    //     measureDiv.textContent = text.substring(0, mid);
+
+    //     const measuredHeight = measureDiv.scrollHeight;
+
+    //     if (measuredHeight <= height) {
+    //       result = mid;
+    //       start = mid + 1;
+    //     } else {
+    //       end = mid - 1;
+    //     }
+    //   }
+
+    //   return result;
+    // }
+
+
+    function getDataForSinglePage(
+      wordIndex,
+      highlightedRanges,
+      text,
+      globalResult,
+      width,
+      font,
+      fontSize
+    ) {
+      console.log("data gave for getDataForSinglePage : ****");
+      console.log("wordIndex : " + wordIndex);
+      console.log("globalResult : " + globalResult);
+
+      const availableHeight = [343, 422, 504, 584, 663, 775];  //[343, 422, 504, 584, 663, 775];
+      const availableWord = [5, 4, 3, 2, 1, 0];
+      const availableMaxLines = [19, 25, 31, 37, 43, 49]
+      let index = 0;
+
+      try {
+        while (true) {
+          if (index >= availableHeight.length) return null; // Safety check
+
+          console.log("index : " + index);
+
+          // Note: Ensure getCharSizeForContainer matches your Dart implementation
+
+          // const currentResult = getCharSizeForContainerAccurate(
+          //   availableHeight[index],
+          //   text.substring(globalResult),
+          //   width
+          // );
+
+          const currentResult = getCharSizeForContainer(
+            availableMaxLines[index],
+            text.substring(globalResult),
+            width,
+            font,
+            fontSize
+          );
+          console.log("currentResult : " + currentResult);
+
+          let count = 0;
+          const highlightedWordsInPara = [];
+
+          while (wordIndex + count < highlightedRanges.length) {
+            // Condition: currentResult + globalResult < highlightedRanges[wordIndex + count].end
+            // console.log("currentResult + globalResult: " + (currentResult + globalResult));
+            // console.log("highlightedRanges[wordIndex + count]: " + (highlightedRanges[wordIndex + count]));
+            // console.log("highlightedRanges[wordIndex + count].end: " + (highlightedRanges[wordIndex + count])[1]);
+            if ((currentResult + globalResult) < (highlightedRanges[wordIndex + count])[1]) {
+              console.log("breaking loop")
+              break;
+            }
+
+            if (count === availableWord[index]) {
+              console.log("return 1");
+              console.log(currentResult);
+
+              // DART MATCH: Uses .start - 1
+              const nextStart = highlightedRanges[wordIndex + count][0] - 1;
+
+              return {
+                "wordIndex": wordIndex + count,
+                "text": text.substring(globalResult, nextStart),
+                "highlightedWords": highlightedWordsInPara,
+                "height": availableHeight[index],
+                "globalResult": nextStart
+              };
+            }
+
+            highlightedWordsInPara.push(highlightedRanges[wordIndex + count]);
+            count++;
+            console.log("count : " + count);
+          }
+
+          if (count < availableWord[index]) {
+            console.log("count1 : " + count);
+            index++;
+          } else {
+            let nearestSpace = currentResult + globalResult;
+
+            // DART MATCH: Backtrack for space logic
+            if (nearestSpace < text.length) {
+              // Note: text[nearestSpace - 1] is equivalent to text.charAt()
+              while (nearestSpace > globalResult && isAlphanumeric(text[nearestSpace - 1])) {
+                console.log(text[nearestSpace - 1] + " backward for space");
+                nearestSpace--;
+              }
+            }
+
+            console.log("return 2");
+            console.log(currentResult);
+
+            return {
+              "wordIndex": wordIndex + count,
+              "text": text.substring(globalResult, nearestSpace),
+              "highlightedWords": highlightedWordsInPara,
+              "height": availableHeight[index],
+              "globalResult": nearestSpace
+            };
+          }
+        }
+      } catch (e) {
+        console.error("error in : getDataForSinglePage", e);
+      }
+      return null;
+    }
+
+
+    function getFittingText1({ text, highlightedWords, width, font, fontSize }) {
+      // 1. Correctly clone and sort (Dart: highlightedWords.map((e) => e).toList())
+      const highlightedRanges = [...highlightedWords].sort(
+        (a, b) => a[0] - b[0]
+      );
+
+      console.log("sorted highlighted words data : " + highlightedRanges);
+
+      const subParagraph = [];
+      let globalResult = 0;
+      let wordIndex = 0;
+      let pageCount = 0;
+
+      while (true) {
+        const dataForSinglePage = getDataForSinglePage(
+          wordIndex,
+          highlightedRanges,
+          text,
+          globalResult,
+          width,
+          font,
+          fontSize
+        );
+
+        if (dataForSinglePage !== null) {
+          // DART LOGIC SYNC: 
+          // We capture the CURRENT globalResult (the start of this page) 
+          // BEFORE updating it to the next page's start.
+          subParagraph.push([
+            dataForSinglePage.text,
+            dataForSinglePage.highlightedWords,
+            dataForSinglePage.height,
+            globalResult, // This is the 'start offset' for this chunk
+          ]);
+
+          // Update pointers for the next iteration
+          wordIndex = dataForSinglePage.wordIndex;
+          globalResult = dataForSinglePage.globalResult;
+        } else {
+          break;
+        }
+
+        // Safety breaks
+        if (globalResult >= text.length || pageCount > 10) {
+          break;
+        }
+
+        pageCount++;
+      }
+
+      return subParagraph;
+    }
+
+
+    function paragraphColumn(item, font) {
+      const data = item[0];
+      const startPosition = item[3];
+      const highlightedWordsLocations = item[1];
+
+      const spans = [];
+      let globalStartPage = 0;
+
+      for (const h of highlightedWordsLocations) {
+        // normal text
+        spans.push({
+          text: data.substring(
+            globalStartPage,
+            h[0] - startPosition
+          ),
+          highlight: false,
+        });
+
+        // highlighted text
+        spans.push({
+          text: data.substring(
+            h[0] - startPosition,
+            h[1] - startPosition
+          ),
+          highlight: true,
+        });
+
+        globalStartPage = h[1] - startPosition;
+      }
+
+      // remaining text
+      spans.push({
+        text: data.substring(globalStartPage),
+        highlight: false,
+      });
+
+      return spans;
+    }
+
+
+    function wordData(data) {
+      if (!data) return null;
+
+      return {
+        medical_term: data.medical_term,
+        meaning: data.meaning ?? "Information currently unavailable",
+      };
+    }
+
+
+    function downloadPDF(bytes) {
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "notes.pdf";
+      a.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+
+
+    async function genaratePDF(
+      paragraph,
+      highlightedWords,
+      highlightWordsData,
+      words
+    ) {
+
+      console.log("highlightedWords: " + highlightedWords);
+      console.log("highlightWordsData: " + highlightWordsData);
+
+
+      highlightWordsData = new Map(
+        highlightWordsData
+      );
+
+      highlightWordsData = new Map(
+        [...highlightWordsData].map(([key, value]) => [
+          String(key).toLowerCase(),
+          value
+        ])
+      );
+
+
+      const { PDFDocument, rgb } = window.PDFLib;
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.registerFontkit(window.fontkit);
+
+      const PAGE_WIDTH = 595.28;
+      const PAGE_HEIGHT = 841.89;
+      const marginLeft = 25;
+      const marginRight = 25;
+      const marginTop = 25;
+
+      const fontBytes = await fetch(
+        "/assets/fonts/NotoSans-Regular-Font.ttf"
+      ).then(res => res.arrayBuffer());
+
+      const font = await pdfDoc.embedFont(fontBytes);
+
+
+      let cursorY = PAGE_HEIGHT - marginTop;
+      let cursorX = marginLeft;
+
+      const fontSize = 12;
+      const lineHeight = fontSize * 1.3;
+      const maxWidth = PAGE_WIDTH - marginLeft - marginRight;
+
+      // canvas for same wrapping logic
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.font = `normal ${fontSize}px NotoSans`;
+
+
+      const subParagraph = getFittingText1({
+        text: paragraph,
+        highlightedWords,
+        width: maxWidth - marginLeft,
+        font,
+        fontSize
+      });
+      console.log(`maxwidth : ${maxWidth}`)
+      console.log(subParagraph)
+
+      for (const item of subParagraph) {
+
+        cursorY = PAGE_HEIGHT - marginTop;
+        cursorX = marginLeft;
+        let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+
+        const spans = paragraphColumn(item, font);
+        console.log("final spans: ");
+        console.log(spans);
+
+        // page.drawRectangle({
+        //   x: cursorX,
+        //   y: cursorY - item[2],         // PDF origin is bottom-left
+        //   width: maxWidth - marginLeft,
+        //   height: item[2],
+        //   borderWidth: 1,
+        //   borderColor: rgb(0, 0, 0),
+        // });
+
+        cursorY -= lineHeight;
+
+        for (const span of spans) {
+          const newLines = span.text.split("\n");
+          console.log(`lines : ${newLines}`)
+          let isFirst = true;
+
+          for (const newLine of newLines) {
+            if (!isFirst) {
+              cursorY -= lineHeight;
+              cursorX = marginLeft;
+            }
+            isFirst = false;
+            const tokens = newLine.match(/\S+|\s+/g) || [];
+            console.log(`tokens : ${tokens}`)
+            // const words = newLine.split(/\s+/);
+            for (const word of tokens) {
+              wordWidth = font.widthOfTextAtSize(`${word}`, fontSize);
+              // console.log("wordWidth= " + wordWidth);
+              if (cursorX + wordWidth > maxWidth) {
+                // console.log(`currentCursorX : ${cursorX}`)
+                cursorX = marginLeft;
+                cursorY -= lineHeight;
+                // console.log(`first word of line : ${word}`);
+                // console.log("wordWidth= " + wordWidth);
+              }
+              page.drawText(word, {
+                x: cursorX,
+                y: cursorY,
+                size: fontSize,
+                font,
+                color: span.highlight ? rgb(1, 0, 0) : rgb(0, 0, 0),
+              });
+              cursorX += wordWidth;
+            }
+          }
+        }
+
+
+        // divider
+
+        if (item[1].length !== 0) {
+          cursorY -= 15;
+          page.drawLine({
+            start: { x: marginLeft, y: cursorY },
+            end: { x: PAGE_WIDTH - marginRight, y: cursorY },
+            thickness: 1,
+            color: rgb(0.8, 0.8, 0.8),
+          });
+          cursorY -= 15;
+        }
+
+  
+
+        // word data blocks
+
+        for (let i = 0; i < item[1].length; i++) {
+          cursorX = marginLeft;
+
+          page.drawText(
+            item[1][i][2],
+            {
+              x: marginLeft,
+              y: cursorY,
+              size: 10,
+              font,
+            }
+          );
+          cursorY -= 10 * 1.3;
+
+          const meaning = highlightWordsData.get(item[1][i][2]) || "";
+          console.log(meaning)
+
+          if (meaning == "") {
+            page.drawText("Information currently unavailable.", {
+              x: cursorX,
+              y: cursorY,
+              size: 9,
+              font,
+              color: rgb(0, 0, 0),
+            });
+          } else {
+            const tokens = meaning.match(/\S+|\s+/g) || [];
+            meaningCursorY = cursorY;
+            let meaningLine = 1;
+            for (const word of tokens) {
+              wordWidth = font.widthOfTextAtSize(word, 9);
+              if (cursorX + wordWidth > maxWidth) {
+                meaningLine++;
+                if (meaningLine > 4) {
+                  page.drawText("....", {
+                    x: cursorX,
+                    y: meaningCursorY,
+                    size: 9,
+                    font,
+                    color: rgb(0, 0, 0),
+                  });
+                  break;
+                }
+                cursorX = marginLeft;
+                meaningCursorY -= 9 * 1.3;
+              }
+              page.drawText(word, {
+                x: cursorX,
+                y: meaningCursorY,
+                size: 9,
+                font,
+                color: rgb(0, 0, 0),
+              });
+              cursorX += wordWidth;
+            }
+
+          }
+
+
+
+          // cursorY-= 10*1.3;
+          //  page.drawText(
+          //   highlightWordsData.get(item[1][i][2]),
+          //   {
+          //     x: marginLeft,
+          //     y: cursorY,
+          //     size: 9,
+          //     font,
+          //   }
+          // );
+          cursorY -= 80;
+        }
+
+      }
+
+      const pdfBytes = await pdfDoc.save();
+      downloadPDF(pdfBytes);
+
+      // await uploadPdfToSupabase(pdfBytes);
+
+      // await supabase.from("tbl_pdf_data").insert({
+      //   pdf_url: "uploaded_url_here",
+      //   col_highlighted_words: words,
+      // });
+
+      return pdfBytes;
+    }
+
+
+
+
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
+
 </html>
