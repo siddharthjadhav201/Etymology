@@ -30,6 +30,7 @@ Future<void> callGeneratePDFWeb({
   Uint8List bytes = Uint8List.fromList(result.cast<int>());
 
   downloadPDF(bytes);
+  saveToDatabase(bytes,words);
 
   // final blob = html.Blob([bytes], 'application/pdf');
   // final url = html.Url.createObjectUrlFromBlob(blob);

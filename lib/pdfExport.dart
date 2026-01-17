@@ -176,7 +176,19 @@ downloadPDF(Uint8List bytes){
   html.Url.revokeObjectUrl(url);
 }
 
-
+void saveToDatabase(Uint8List bytes,List words)async{
+   String? pdfUrl= await uploadPdfToSupabase(bytes);
+  final supabase = Supabase.instance.client;
+  try {
+    await supabase.from('tbl_pdf_data').insert({
+      'pdf_url': pdfUrl,
+      'col_highlighted_words':words
+    });
+  }
+  catch(e){
+    print(e);
+  }
+}
 
 
 
