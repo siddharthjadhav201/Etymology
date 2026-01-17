@@ -154,7 +154,6 @@ Future genaratePDF(String paragraph,List<HighlightedRange> highlightedWords,Map 
   downloadPDF(await pdf.save());
   String? pdfUrl= await uploadPdfToSupabase(await pdf.save());
   final supabase = Supabase.instance.client;
-
   try {
     await supabase.from('tbl_pdf_data').insert({
       'pdf_url': pdfUrl,

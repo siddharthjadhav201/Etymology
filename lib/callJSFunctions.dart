@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'dart:html' as html;
 
 import 'package:etymology/highlight_block_formatter.dart';
+import 'package:etymology/pdfExport.dart';
 
 
 Future<void> callGeneratePDFWeb({
@@ -26,7 +27,9 @@ Future<void> callGeneratePDFWeb({
     ),
   );
 
-  // final bytes = Uint8List.fromList(result.cast<int>());
+  Uint8List bytes = Uint8List.fromList(result.cast<int>());
+
+  downloadPDF(bytes);
 
   // final blob = html.Blob([bytes], 'application/pdf');
   // final url = html.Url.createObjectUrlFromBlob(blob);
@@ -37,6 +40,8 @@ Future<void> callGeneratePDFWeb({
 
   // html.Url.revokeObjectUrl(url);
 }
+
+
 
 List<List> toJsHighlightedWords(
     List<HighlightedRange> list) {
