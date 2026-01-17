@@ -17,7 +17,7 @@ Future fetchMedicalTerms(HighlightProvider highlightProvider) async{
   if(response.body.isEmpty){return;}
   Map responseData=jsonDecode(response.body);
   List datalist=responseData['results'];
-   Map data = Map.fromEntries(datalist.map((item){
+   Map<String,dynamic> data = Map.fromEntries(datalist.map((item){
   return MapEntry(item[1].toLowerCase(), {'medical_term':item[1],'meaning':item[2]});},));
   highlightProvider.setHighlightWordsData(data);
   print(data);
