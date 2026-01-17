@@ -175,6 +175,22 @@ class _NotesEditorState extends State<NotesEditor> {
   }
 
   @override
+  void deactivate() {
+    final highlightProvider = Provider.of<HighlightProvider>(context);
+    noteController.clear();
+    highlightProvider.clear();
+    highlightProvider.setAnnotatedStatus(false);
+    log("dispose called");
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     final highlightProvider = Provider.of<HighlightProvider>(context);

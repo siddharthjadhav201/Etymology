@@ -36,7 +36,6 @@
 
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.js"></script>
-
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script>
 
@@ -359,28 +358,29 @@
     }
 
 
-    function wordData(data) {
-      if (!data) return null;
+    // function wordData(data) {
+    //   if (!data) return null;
 
-      return {
-        medical_term: data.medical_term,
-        meaning: data.meaning ?? "Information currently unavailable",
-      };
-    }
+    //   return {
+    //     medical_term: data.medical_term,
+    //     meaning: data.meaning ?? "Information currently unavailable",
+    //   };
+    // }
 
 
-    function downloadPDF(bytes) {
-      const blob = new Blob([bytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
+    // function downloadPDF(bytes) {
+    //   const blob = new Blob([bytes], { type: "application/pdf" });
+    //   const url = URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "notes.pdf";
-      a.click();
+    //   const a = document.createElement("a");
+    //   a.href = url;
+    //   a.download = "notes.pdf";
+    //   a.click();
 
-      URL.revokeObjectURL(url);
-    }
+    //   URL.revokeObjectURL(url);
+    // }
 
+   
 
 
     async function genaratePDF(
@@ -406,10 +406,10 @@
       );
 
 
-      const { PDFDocument, rgb } = window.PDFLib;
+      // const { PDFDocument, rgb } = window.PDFLib;
 
-      const pdfDoc = await PDFDocument.create();
-      pdfDoc.registerFontkit(window.fontkit);
+      // const pdfDoc = await PDFDocument.create();
+      // pdfDoc.registerFontkit(window.fontkit);
 
       const PAGE_WIDTH = 595.28;
       const PAGE_HEIGHT = 841.89;
@@ -417,11 +417,20 @@
       const marginRight = 25;
       const marginTop = 25;
 
-      const fontBytes = await fetch(
-        "/assets/fonts/NotoSans-Regular-Font.ttf"
-      ).then(res => res.arrayBuffer());
+      //     const fontBytes = await fetch(
+      //   "./assets/fonts/NotoSans-Regular-Font.ttf"
+      // ).then(res => res.arrayBuffer());
 
-      const font = await pdfDoc.embedFont(fontBytes);
+      // const font = await pdfDoc.embedFont(fontBytes);
+
+      const { PDFDocument, rgb, StandardFonts } = window.PDFLib;
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.registerFontkit(window.fontkit);
+      const fontBytes = await fetch("assets/assets/fonts/NotoSans-Regular-Font.ttf")
+        .then(res => res.arrayBuffer());
+        const font = await pdfDoc.embedFont(fontBytes);
+      // const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
 
       let cursorY = PAGE_HEIGHT - marginTop;
@@ -492,12 +501,24 @@
                 // console.log(`first word of line : ${word}`);
                 // console.log("wordWidth= " + wordWidth);
               }
+
+
+              //amber background
+              if (span.highlight) {
+                page.drawRectangle({
+                  x: cursorX - 1,
+                  y: cursorY - lineHeight / 4,
+                  width: wordWidth + 2,
+                  height: lineHeight,
+                  color: rgb(1, 0.756, 0.027), // AMBER
+                });
+              }
               page.drawText(word, {
                 x: cursorX,
                 y: cursorY,
                 size: fontSize,
                 font,
-                color: span.highlight ? rgb(1, 0, 0) : rgb(0, 0, 0),
+                color: rgb(0.4, 0.4, 0.4),
               });
               cursorX += wordWidth;
             }
@@ -518,7 +539,7 @@
           cursorY -= 15;
         }
 
-  
+
 
         // word data blocks
 
@@ -598,14 +619,6 @@
       }
 
       const pdfBytes = await pdfDoc.save();
-      downloadPDF(pdfBytes);
-
-      // await uploadPdfToSupabase(pdfBytes);
-
-      // await supabase.from("tbl_pdf_data").insert({
-      //   pdf_url: "uploaded_url_here",
-      //   col_highlighted_words: words,
-      // });
 
       return pdfBytes;
     }
