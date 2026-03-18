@@ -43,7 +43,15 @@ class CustomNavbar extends StatelessWidget {
                 }
               }),
               _navItem("Contact"),
-              _navItem("Help"),
+              _navItem("Know More", onTap: () async {
+                const url =
+                    'https://firebasestorage.googleapis.com/v0/b/effectivecommunication-e0100.firebasestorage.app/o/etymo%2FWhatsApp%20Video%202026-03-17%20at%2010.02.37%20PM.mp4?alt=media&token=9cace3b2-6a65-4a8a-b125-9a987224726c';
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url));
+                } else {
+                  throw 'Could not launch $url';
+                }
+              }),
               const SizedBox(width: 12),
               MouseRegion(
                 cursor: SystemMouseCursors.click,
@@ -107,7 +115,7 @@ class CustomNavbar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: MouseRegion(
-        cursor: title == "Feedback"
+        cursor: onTap != null
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,
         child: GestureDetector(
