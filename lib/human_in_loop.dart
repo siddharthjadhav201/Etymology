@@ -1,4 +1,5 @@
 // lib/pages/medical_terms_etymo_page.dart
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:etymology/pdfHistoryPage.dart';
@@ -34,12 +35,70 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
   final TextEditingController addMeaningController = TextEditingController();
   var supabase = Supabase.instance.client;
 
+  /// Debounce timer for search-as-you-type (300ms). Isolated from pagination/fetch logic.
+  Timer? _searchDebounceTimer;
+  static const _searchDebounceMs = 300;
+
   // final Set<int> updatedIds = {};
   @override
   void initState() {
     super.initState();
     fetchWords();
     _scrollController = ScrollController();
+    // Debounced search: when user types, query after 300ms; when cleared, restore pagination.
+    searchController.addListener(_onSearchFieldChanged);
+  }
+
+  void _onSearchFieldChanged() {
+    _searchDebounceTimer?.cancel();
+    final query = searchController.text.trim();
+    if (query.isEmpty) {
+      fetchWords();
+      return;
+    }
+    _searchDebounceTimer = Timer(
+      const Duration(milliseconds: _searchDebounceMs),
+      () => _runPageSearch(),
+    );
+  }
+
+  /// Search with ilike, limit 50. Does not change pagination/letter/update logic.
+  Future<void> _runPageSearch() async {
+    final query = searchController.text.trim();
+    if (query.isEmpty) return;
+    if (!mounted) return;
+    setState(() {
+      isLoading = true;
+      selectedTermIndex = null;
+      selectedTerm = null;
+      meaningController.clear();
+    });
+    try {
+      final dataForChar = await supabase
+          .from('tbl_medical_terms')
+          .select('id,medical_term,meaning,term_edited')
+          .ilike('medical_term', '%$query%')
+          .order('medical_term', ascending: true)
+          .limit(50);
+      if (!mounted) return;
+      setState(() {
+        terms = dataForChar;
+        _itemKeys
+          ..clear()
+          ..addAll(List.generate(terms.length, (_) => GlobalKey()));
+        currentPage = 1;
+        totalPages = 1; // search shows one list of up to 50 results
+      });
+    } catch (e, st) {
+      debugPrint('_runPageSearch -> error: $e\n$st');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Search failed')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   //  FETCH PAGINATED TERMS
@@ -166,7 +225,8 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
           .from('tbl_medical_terms')
           .select('id,medical_term,meaning,term_edited')
           .ilike('medical_term', '%$query%')
-          .order('medical_term', ascending: true);
+          .order('medical_term', ascending: true)
+          .limit(50);
 
       if (dataForChar.isNotEmpty) {
         setState(() {
@@ -688,6 +748,8 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
 
   @override
   void dispose() {
+    _searchDebounceTimer?.cancel();
+    searchController.removeListener(_onSearchFieldChanged);
     meaningController.dispose();
     searchController.dispose();
     addTermController.dispose();

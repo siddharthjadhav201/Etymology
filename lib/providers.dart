@@ -17,6 +17,9 @@ class LoginProvider extends ChangeNotifier{
 }
 
 class HighlightProvider with ChangeNotifier {
+  /// Maximum number of words user can highlight for annotation.
+  /// Increased from 10 → 25 (existing highlight/PDF logic unchanged).
+  static const int maxHighlightWords = 25;
   OverlayState? overlay;
   BuildContext? homeScreenContext;
   // final List<List<int>> highlightedWordSelectionLocations= [];
@@ -156,7 +159,7 @@ removeDescriptionPopUp(){
   
   int toggleHighlight(String word,int start,int end) {
     if ( !highlightedWords.contains(word)) {
-      if(highlightedWords.length == 10){
+      if(highlightedWords.length == maxHighlightWords){
         return 1;
       }else{
            highlightedWords.add(word);
@@ -199,7 +202,7 @@ removeDescriptionPopUp(){
       }
     }
     
-    if (highlightedWords.length == 10) {
+    if (highlightedWords.length == maxHighlightWords) {
       return 1; // Limit reached
     }
     

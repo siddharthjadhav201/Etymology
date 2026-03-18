@@ -305,7 +305,7 @@ class _MyWidgetState extends State<MyWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildStepCard(
-                          "1", "Paste or type \nyour study \nmaterial", width),
+                          "1", "Paste or type \nyour study notes", width),
                       _buildStepCard(
                           "2", "Select the \nscientific terms", width),
                       _buildStepCard(

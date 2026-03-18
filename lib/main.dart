@@ -1,6 +1,7 @@
 
 import 'package:etymology/human_in_loop.dart';
 import 'package:etymology/login_page.dart';
+import 'package:etymology/notes_search_provider.dart';
 import 'package:etymology/pdfHistoryPage.dart';
 import 'package:etymology/providers.dart';
 import 'package:etymology/try.dart';
@@ -25,6 +26,7 @@ void main() async{
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => HighlightProvider()),
     ChangeNotifierProvider(create: (_) => LoginProvider()),
+    ChangeNotifierProvider(create: (_) => NotesSearchProvider()),
   ],
     child: MainApp(),
 
