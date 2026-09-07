@@ -6,6 +6,9 @@ import 'package:etymology/pdfHistoryPage.dart';
 import 'package:etymology/string_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:etymology/services/remote_services.dart';
 
 class MedicalTermsEtymoPage extends StatefulWidget {
   const MedicalTermsEtymoPage({super.key});
@@ -98,6 +101,38 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
       }
     } finally {
       if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  // ---------- CSV UPLOAD ----------
+  Future<void> _pickAndUploadCsv() async {
+    try {
+      FilePickerResult? result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+        withData: true,
+      );
+
+      if (result != null && result.files.single.bytes != null) {
+        if (!mounted) return;
+        
+        final String csvContent = utf8.decode(result.files.single.bytes!);
+        
+        final importResult = await showDialog<Map<String, int>>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => CsvImportProgressDialog(csvContent: csvContent),
+        );
+        
+        if (importResult != null && mounted) {
+          fetchWords();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error picking/uploading CSV: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
@@ -834,6 +869,16 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
               const SizedBox(width: 8),
               ElevatedButton(
                   onPressed: fetchWords, child: const Text('Refresh')),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: _pickAndUploadCsv,
+                icon: const Icon(Icons.upload_file),
+                label: const Text('Upload CSV'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade600,
+                  foregroundColor: Colors.white,
+                ),
+              ),
             ]),
           ),
 
@@ -880,6 +925,264 @@ class _MedicalTermsEtymoPageState extends State<MedicalTermsEtymoPage> {
           //       ],
           //     ),
           //   ),
+        ],
+      ),
+    );
+  }
+}
+
+class CsvImportProgressDialog extends StatefulWidget {
+  final String csvContent;
+
+  const CsvImportProgressDialog({
+    super.key,
+    required this.csvContent,
+  });
+
+  @override
+  State<CsvImportProgressDialog> createState() => _CsvImportProgressDialogState();
+}
+
+class _CsvImportProgressDialogState extends State<CsvImportProgressDialog> {
+  int _totalLines = 0;
+  int _processedLines = 0;
+  int _inserted = 0;
+  int _updated = 0;
+  int _errors = 0;
+  bool _isProcessing = true;
+  String _statusMessage = 'Analyzing CSV file...';
+  Map<String, int>? _result;
+
+  @override
+  void initState() {
+    super.initState();
+    _startImport();
+  }
+
+  Future<void> _startImport() async {
+    try {
+      final result = await importMedicalTermsFromCsv(
+        widget.csvContent,
+        onProgress: ({
+          required int totalLines,
+          required int processedLines,
+          required int inserted,
+          required int updated,
+          required int errors,
+        }) {
+          if (mounted) {
+            setState(() {
+              _totalLines = totalLines;
+              _processedLines = processedLines;
+              _inserted = inserted;
+              _updated = updated;
+              _errors = errors;
+              _statusMessage = 'Processing CSV rows...';
+            });
+          }
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _result = result;
+          _isProcessing = false;
+          _statusMessage = 'Import completed!';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+          _statusMessage = 'Error during import: $e';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double progress = _totalLines > 0 ? _processedLines / _totalLines : 0.0;
+    final int percentage = (progress * 100).round();
+
+    return PopScope(
+      canPop: !_isProcessing,
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Column(
+          children: [
+            Icon(
+              _isProcessing
+                  ? Icons.upload_file_outlined
+                  : (_errors > 0 ? Icons.warning_amber_rounded : Icons.check_circle_outline),
+              size: 48,
+              color: _isProcessing
+                  ? const Color(0xFF363BBA)
+                  : (_errors > 0 ? Colors.amber.shade700 : Colors.green.shade600),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _isProcessing ? 'Importing CSV Data' : 'Import Complete',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+        content: Container(
+          width: double.maxFinite,
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _statusMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // Progress Bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 10,
+                  backgroundColor: Colors.grey.shade200,
+                  color: const Color(0xFF363BBA),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '$_processedLines / $_totalLines lines',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    '$percentage%',
+                    style: const TextStyle(
+                      color: Color(0xFF363BBA),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              
+              // Stats Cards
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      label: 'Inserted',
+                      value: _inserted,
+                      color: Colors.green.shade600,
+                      icon: Icons.add_box_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildStatCard(
+                      label: 'Updated',
+                      value: _updated,
+                      color: Colors.blue.shade600,
+                      icon: Icons.edit_note_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildStatCard(
+                      label: 'Errors',
+                      value: _errors,
+                      color: Colors.red.shade600,
+                      icon: Icons.error_outline_rounded,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          if (!_isProcessing)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(_result);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF363BBA),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Done',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String label,
+    required int value,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.24),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(
+            '$value',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+          ),
         ],
       ),
     );

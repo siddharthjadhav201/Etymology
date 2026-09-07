@@ -298,17 +298,25 @@ List<String> _parseCsvLine(String line) {
   return fields;
 }
 
-/// Imports medical terms from WordList.csv into tbl_medical_terms
+/// Imports medical terms from CSV string into tbl_medical_terms
 /// Updates existing terms' meanings, inserts new terms
-Future<Map<String, int>> importMedicalTermsFromCsv() async {
+Future<Map<String, int>> importMedicalTermsFromCsv(
+  String csvContent, {
+  void Function({
+    required int totalLines,
+    required int processedLines,
+    required int inserted,
+    required int updated,
+    required int errors,
+  })? onProgress,
+}) async {
   final supabase = Supabase.instance.client;
   int inserted = 0;
   int updated = 0;
   int errors = 0;
   
   try {
-    // Read CSV file from assets
-    final String csvContent = await rootBundle.loadString('assets/WordList1.csv');
+    // Split CSV content into lines
     final List<String> lines = csvContent.split('\n');
     
     if (lines.isEmpty) {
@@ -318,14 +326,16 @@ Future<Map<String, int>> importMedicalTermsFromCsv() async {
     
     // Skip header row
     final List<String> dataLines = lines.skip(1).where((line) => line.trim().isNotEmpty).toList();
+    final int totalLines = dataLines.length;
     
-    log('Processing ${dataLines.length} rows from CSV');
+    log('Processing $totalLines rows from CSV');
     
     // Process in batches for better performance
-    const int batchSize = 50;
+    const int batchSize = 100;
     for (int i = 0; i < dataLines.length; i += batchSize) {
       final List<String> batch = dataLines.skip(i).take(batchSize).toList();
       final List<Map<String, String>> records = [];
+      final List<String> batchTerms = [];
       
       for (String line in batch) {
         try {
@@ -339,6 +349,7 @@ Future<Map<String, int>> importMedicalTermsFromCsv() async {
                 'medical_term': medicalTerm,
                 'meaning': meaning,
               });
+              batchTerms.add(medicalTerm);
             }
           }
         } catch (e) {
@@ -347,42 +358,98 @@ Future<Map<String, int>> importMedicalTermsFromCsv() async {
         }
       }
       
-      if (records.isEmpty) continue;
-      
-      // Process each record individually for upsert
-      for (final record in records) {
-        final String medicalTerm = record['medical_term']!;
-        final String meaning = record['meaning']!;
-        
-        try {
-          // Check if term exists (allowing for potential duplicates without throwing)
-          final List<dynamic> existing = await supabase
-              .from('tbl_medical_terms')
-              .select('id')
-              .eq('medical_term', medicalTerm)
-              .limit(1);
-
-          if (existing.isNotEmpty) {
-            // Update existing
-            await supabase
-                .from('tbl_medical_terms')
-                .update({'meaning': meaning})
-                .eq('medical_term', medicalTerm);
-            updated++;
-          } else {
-            // Insert new
-            await supabase
-                .from('tbl_medical_terms')
-                .insert({
-                  'medical_term': medicalTerm,
-                  'meaning': meaning,
-                });
-            inserted++;
-          }
-        } catch (e) {
-          log('Error processing ${record['medical_term']}: $e');
-          errors++;
+      if (records.isEmpty) {
+        if (onProgress != null) {
+          onProgress(
+            totalLines: totalLines,
+            processedLines: (i + batch.length).clamp(0, totalLines),
+            inserted: inserted,
+            updated: updated,
+            errors: errors,
+          );
         }
+        continue;
+      }
+      
+      // Step 1: Query existing terms in this batch
+      final Set<String> existingTerms = {};
+      try {
+        final List<dynamic> existingRows = await supabase
+            .from('tbl_medical_terms')
+            .select('medical_term')
+            .inFilter('medical_term', batchTerms);
+        
+        for (var row in existingRows) {
+          final String term = row['medical_term'] ?? '';
+          if (term.isNotEmpty) {
+            existingTerms.add(term.trim().toLowerCase());
+          }
+        }
+      } catch (e) {
+        log('Error querying existing terms for batch: $e');
+      }
+      
+      // Pre-calculate how many would be inserted vs updated in this batch
+      int batchInserted = 0;
+      int batchUpdated = 0;
+      for (final record in records) {
+        final termLower = record['medical_term']!.trim().toLowerCase();
+        if (existingTerms.contains(termLower)) {
+          batchUpdated++;
+        } else {
+          batchInserted++;
+        }
+      }
+      
+      // Step 2: Try batch upsert
+      try {
+        await supabase
+            .from('tbl_medical_terms')
+            .upsert(records, onConflict: 'medical_term');
+        
+        inserted += batchInserted;
+        updated += batchUpdated;
+      } catch (e) {
+        log('Batch upsert failed, falling back to individual processing: $e');
+        // Fallback: process individually
+        for (final record in records) {
+          final String medicalTerm = record['medical_term']!;
+          final String meaning = record['meaning']!;
+          
+          try {
+            final bool isExisting = existingTerms.contains(medicalTerm.trim().toLowerCase());
+            
+            if (isExisting) {
+              await supabase
+                  .from('tbl_medical_terms')
+                  .update({'meaning': meaning})
+                  .eq('medical_term', medicalTerm);
+              updated++;
+            } else {
+              await supabase
+                  .from('tbl_medical_terms')
+                  .insert({
+                    'medical_term': medicalTerm,
+                    'meaning': meaning,
+                  });
+              inserted++;
+            }
+          } catch (individualError) {
+            log('Error processing individual term $medicalTerm: $individualError');
+            errors++;
+          }
+        }
+      }
+      
+      // Call progress callback
+      if (onProgress != null) {
+        onProgress(
+          totalLines: totalLines,
+          processedLines: (i + batch.length).clamp(0, totalLines),
+          inserted: inserted,
+          updated: updated,
+          errors: errors,
+        );
       }
     }
     

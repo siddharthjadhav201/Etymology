@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/services.dart';
 import 'package:etymology/services/remote_services.dart';
 
 /// Run this function to import CSV and verify
@@ -19,7 +20,8 @@ Future<void> runCsvImport() async {
   
   // Step 2: Run import
   log('\n--- Running Import ---');
-  final result = await importMedicalTermsFromCsv();
+  final String csvContent = await rootBundle.loadString('assets/WordList1.csv');
+  final result = await importMedicalTermsFromCsv(csvContent);
   log('Import Result:');
   log('  - Inserted: ${result['inserted']}');
   log('  - Updated: ${result['updated']}');
